@@ -23,3 +23,5 @@ src/config.h*
 stamp-h1
 *.plist
 vs-premake
+dbg/
+rel/
