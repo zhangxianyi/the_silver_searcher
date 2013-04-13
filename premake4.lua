@@ -52,5 +52,6 @@ solution "ag"
       "src/*.h",
       "src/*.c",
     }
-    includedirs { "src", "wincompat", "wincompat/zlib", "wincompat/pcre-8.32" }
+    includedirs { "src", "wincompat", "wincompat/zlib", "wincompat/pcre-8.32",
+    "wincompat/pthread-win32" }
     links { "Shlwapi" }

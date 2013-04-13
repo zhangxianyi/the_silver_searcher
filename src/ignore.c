@@ -13,7 +13,7 @@
 
 #ifdef _WIN32
 # include <shlwapi.h>
-# define fnmatch(x, y, z) (!PathMatchSpec(y,x))
+# define fnmatch(x, y, z) (!PathMatchSpecA(y,x))
 #else
 # include <fnmatch.h>
 const int fnmatch_flags = 0 & FNM_PATHNAME;
@@ -150,7 +150,7 @@ void load_svn_ignore_patterns(ignores *ig, const char *path) {
 
     char *entry = NULL;
     size_t entry_len = 0;
-    char *key = ag_malloc(32); /* Sane start for max key length. */
+    char *key = (char*)ag_malloc(32); /* Sane start for max key length. */
     size_t key_len = 0;
     size_t bytes_read = 0;
     char *entry_line;
@@ -158,7 +158,7 @@ void load_svn_ignore_patterns(ignores *ig, const char *path) {
     int matches;
 
     while (fscanf(fp, "K %zu\n", &key_len) == 1) {
-        key = ag_realloc(key, key_len + 1);
+        key = (char*)ag_realloc(key, key_len + 1);
         bytes_read = fread(key, 1, key_len, fp);
         key[key_len] = '\0';
         matches = fscanf(fp, "\nV %zu\n", &entry_len);
@@ -174,7 +174,7 @@ void load_svn_ignore_patterns(ignores *ig, const char *path) {
             continue;
         }
         /* Aww yeah. Time to ignore stuff */
-        entry = ag_malloc(entry_len + 1);
+        entry = (char*)ag_malloc(entry_len + 1);
         bytes_read = fread(entry, 1, entry_len, fp);
         entry[bytes_read] = '\0';
         log_debug("entry: %s", entry);

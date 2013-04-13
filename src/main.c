@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 
     log_debug("Using %i workers", workers_len);
     done_adding_files = FALSE;
-    workers = ag_calloc(workers_len, sizeof(pthread_t));
+    workers = (pthread_t*)ag_calloc(workers_len, sizeof(pthread_t));
     if (pthread_cond_init(&files_ready, NULL))
         die("pthread_cond_init failed!");
     if (pthread_mutex_init(&print_mtx, NULL))

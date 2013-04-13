@@ -1,32 +1,16 @@
-/*
-POSIX getopt for Windows
+#ifndef wincompat_getopt_h
+#define wincompat_getopt_h
 
-AT&T Public License
+#define null_argument       0
+#define no_argument         0
+#define required_argument   1
+#define optional_argument   2
 
-Code given out at the 1985 UNIFORUM conference in Dallas.  
-*/
+struct option {
+    const char* name;
+    int         has_arg;
+    int *       flag;
+    char        val;
+};
 
-#ifdef __GNUC__
-#include <getopt.h>
 #endif
-#ifndef __GNUC__
-
-#ifndef _WINGETOPT_H_
-#define _WINGETOPT_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-extern int opterr;
-extern int optind;
-extern int optopt;
-extern char *optarg;
-extern int getopt(int argc, char **argv, char *opts);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif  /* _GETOPT_H_ */
-#endif  /* __GNUC__ */

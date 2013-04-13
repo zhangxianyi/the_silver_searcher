@@ -20,7 +20,7 @@ int ag_scandir(const char *dirname,
         goto fail;
     }
 
-    names = malloc(sizeof(struct dirent*) * names_len);
+    names = (dirent**)malloc(sizeof(struct dirent*) * names_len);
     if (names == NULL) {
         goto fail;
     }

@@ -263,7 +263,7 @@ void search_file(const char *file_full_path) {
     }
 }
 
-void *search_file_worker() {
+void *search_file_worker(void * /* arg */) {
     work_queue_t *queue_item;
 
     while (TRUE) {
