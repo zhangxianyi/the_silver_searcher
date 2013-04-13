@@ -145,6 +145,11 @@ special-purpose environments) might want to stick other stuff in front of
 exported symbols. That's why, in the non-Windows case, we set PCRE_EXP_DEFN and
 PCRE_EXP_DATA_DEFN only if they are not already set. */
 
+
+#ifndef PCRE_STATIC
+#define "why no PCRE_STATIC?"
+#endif
+
 #ifndef PCRE_EXP_DECL
 #  ifdef _WIN32
 #    ifndef PCRE_STATIC

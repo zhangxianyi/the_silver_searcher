@@ -59,10 +59,40 @@ solution "ag"
       -- /TP  - compile as c++
       buildoptions { "/TP" }
 
+    defines { "PCRE_STATIC" }
     includedirs { "src", "wincompat", "wincompat/zlib", "wincompat/pcre-8.32",
     "wincompat/pthread-win32" }
     linkoptions {"/NODEFAULTLIB:\"msvcrt.lib\""}
-    links { "Shlwapi", "zlib", "pthread-win32" }
+    links { "Shlwapi", "zlib", "pthread-win32", "pcre" }
+
+  project "pcre"
+    kind "StaticLib"
+    language "C"
+    defines { "HAVE_CONFIG_H" }
+    files {
+      "wincompat/pcre-8.32/pcre_byte_order.c",
+      "wincompat/pcre-8.32/pcre_chartables.c",
+      "wincompat/pcre-8.32/pcre_compile.c",
+      "wincompat/pcre-8.32/pcre_config.c",
+      "wincompat/pcre-8.32/pcre_dfa_exec.c",
+      "wincompat/pcre-8.32/pcre_exec.c",
+      "wincompat/pcre-8.32/pcre_fullinfo.c",
+      "wincompat/pcre-8.32/pcre_get.c",
+      "wincompat/pcre-8.32/pcre_globals.c",
+      "wincompat/pcre-8.32/pcre_jit_compile.c",
+      "wincompat/pcre-8.32/pcre_maketables.c",
+      "wincompat/pcre-8.32/pcre_newline.c",
+      "wincompat/pcre-8.32/pcre_ord2utf8.c",
+      "wincompat/pcre-8.32/pcre_refcount.c",
+      "wincompat/pcre-8.32/pcre_string_utils.c",
+      "wincompat/pcre-8.32/pcre_study.c",
+      "wincompat/pcre-8.32/pcre_tables.c",
+      "wincompat/pcre-8.32/pcre_ucd.c",
+      "wincompat/pcre-8.32/pcre_valid_utf8.c",
+      "wincompat/pcre-8.32/pcre_version.c",
+      "wincompat/pcre-8.32/pcre_xclass.c",
+    }
+    includedirs { "wincompat/pcre-8.32" }
 
   project "zlib"
      kind "StaticLib"
