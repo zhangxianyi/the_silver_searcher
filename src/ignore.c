@@ -38,7 +38,7 @@ const char *ignore_pattern_files[] = {
 };
 
 ignores *init_ignore(ignores *parent) {
-    ignores *ig = ag_malloc(sizeof(ignores));
+    ignores *ig = (ignores *)ag_malloc(sizeof(ignores));
     ig->names = NULL;
     ig->names_len = 0;
     ig->regexes = NULL;
@@ -91,13 +91,13 @@ void add_ignore_pattern(ignores *ig, const char* pattern) {
     /* TODO: de-dupe these patterns */
     if (is_fnmatch(pattern)) {
         ig->regexes_len++;
-        ig->regexes = ag_realloc(ig->regexes, ig->regexes_len * sizeof(char*));
+        ig->regexes = (char**)ag_realloc(ig->regexes, ig->regexes_len * sizeof(char*));
         ig->regexes[ig->regexes_len - 1] = ag_strndup(pattern, pattern_len);
         log_debug("added regex ignore pattern %s", pattern);
     } else {
         /* a balanced binary tree is best for performance, but I'm lazy */
         ig->names_len++;
-        ig->names = ag_realloc(ig->names, ig->names_len * sizeof(char*));
+        ig->names = (char**)ag_realloc(ig->names, ig->names_len * sizeof(char*));
         for (i = ig->names_len - 1; i > 0; i--) {
             if (strcmp(pattern, ig->names[i-1]) > 0) {
                 break;

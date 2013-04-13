@@ -7,9 +7,7 @@
 #include <sys/param.h>
 #endif
 #include <sys/stat.h>
-#ifndef _MSC_VER
 #include <unistd.h>
-#endif
 
 #include "config.h"
 #include "ignore.h"
@@ -30,9 +28,9 @@ char* realpath(const char *path, char *resolved_path) {
 }
 #endif
 
-const char *color_line_number = "\e[1;33m"; /* yellow with black background */
-const char *color_match = "\e[30;43m"; /* black with yellow background */
-const char *color_path = "\e[1;32m";   /* bold green */
+const char *color_line_number = "\\e[1;33m"; /* yellow with black background */
+const char *color_match = "\\e[30;43m"; /* black with yellow background */
+const char *color_path = "\\e[1;32m";   /* bold green */
 
 /* TODO: try to obey out_fd? */
 void usage() {

@@ -12,7 +12,7 @@ function solution_common()
   -- FatalWarnings - compiler warnigs are errors'
   -- NoMinimalRebuild - disable /Gm because it clashes with /MP
   flags {
-   "Symbols", "StaticRuntime", "ExtraWarnings",
+   "Symbols", "StaticRuntime",
    "NoRTTI", "Unicode", "NoExceptions", "NoMinimalRebuild"
   }
 
@@ -30,14 +30,15 @@ function solution_common()
 
   configuration {"vs*"}
     -- defines { "_WIN32", "WIN32", "WINDOWS", "_CRT_SECURE_NO_WARNINGS" }
-    defines { "_WIN32", "WIN32", "WINDOWS" }
+    defines { "_WIN32", "WIN32", "WINDOWS", "_CRT_SECURE_NO_WARNINGS" }
     -- 4800 - int -> bool coversion
     -- 4127 - conditional expression is constant
     -- 4100 - unreferenced formal parameter
     -- 4244 - possible loss of data due to conversion
     -- /MP  - use multi-cores for compilation
+    -- /TP  - compile as c++
     buildoptions {
-        "/wd4800", "/wd4127", "/wd4100", "/wd4244"
+        "/TP", "/wd4800", "/wd4127", "/wd4100", "/wd4244"
     }
 end
 
@@ -51,5 +52,5 @@ solution "ag"
       "src/*.h",
       "src/*.c",
     }
-    includedirs { "src", "wincompat", "wincompat/zlib" }
+    includedirs { "src", "wincompat", "wincompat/zlib", "wincompat/pcre-8.32" }
     links { "Shlwapi" }
