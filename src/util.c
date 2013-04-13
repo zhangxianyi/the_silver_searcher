@@ -14,6 +14,9 @@
 #define getc_unlocked(x) getc(x)
 #endif
 
+FILE *out_fd;
+ag_stats stats;
+
 #define CHECK_AND_RETURN(ptr) \
 if (ptr == NULL) { die("Memory allocation failed."); }\
 return ptr;
@@ -167,7 +170,7 @@ void compile_study(pcre **re, pcre_extra **re_extra, char *q, const int pcre_opt
 int is_binary(const void* buf, const int buf_len) {
     int suspicious_bytes = 0;
     int total_bytes = buf_len > 512 ? 512 : buf_len;
-    const unsigned char *buf_c = buf;
+    const unsigned char *buf_c = (const unsigned char *)buf;
     int i;
 
     if (buf_len == 0) {
@@ -365,7 +368,7 @@ char *fgetln(FILE *fp, size_t *lenp) {
             size_t nsize;
             char *newbuf;
             nsize = used + BUFSIZ;
-            if (!(newbuf = realloc(buf, nsize))) {
+            if (!(newbuf = (char*)realloc(buf, nsize))) {
                 funlockfile(fp);
                 if (buf)
                     free(buf);
@@ -402,7 +405,7 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream) {
     if (len >= *n) {
         /* line is too big for buffer, must realloc */
         /* double the buffer, bail on error */
-        if (!(newlnptr = realloc(*lineptr, len * 2))) {
+        if (!(newlnptr = (char*)realloc(*lineptr, len * 2))) {
             return -1;
         }
         *lineptr = newlnptr;
@@ -446,7 +449,7 @@ int vasprintf(char **ret, const char *fmt, va_list args) {
 #ifdef __va_copy
     /* non-standard macro, but usually exists */
     __va_copy(args2, args);
-#elif va_copy
+#elif defined(va_copy)
     /* C99 macro. We compile with -std=c89 but you never know */
     va_copy(args2, args);
 #else
@@ -458,7 +461,7 @@ int vasprintf(char **ret, const char *fmt, va_list args) {
     if (rv < 0) {
         return rv;
     }
-    *ret = malloc(++rv); /* vsnprintf doesn't count \0 */
+    *ret = (char*)malloc(++rv); /* vsnprintf doesn't count \0 */
     if (*ret == NULL) {
         return -1;
     }

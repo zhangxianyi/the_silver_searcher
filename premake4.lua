@@ -36,9 +36,8 @@ function solution_common()
     -- 4100 - unreferenced formal parameter
     -- 4244 - possible loss of data due to conversion
     -- /MP  - use multi-cores for compilation
-    -- /TP  - compile as c++
     buildoptions {
-        "/TP", "/wd4800", "/wd4127", "/wd4100", "/wd4244"
+        "/wd4800", "/wd4127", "/wd4100", "/wd4244"
     }
 end
 
@@ -51,7 +50,32 @@ solution "ag"
     files {
       "src/*.h",
       "src/*.c",
+      "wincompat/dirent.*",
+      "wincompat/getopt.*",
+      "wincompat/unistd.*",
     }
+
+    configuration {"vs*"}
+      -- /TP  - compile as c++
+      buildoptions { "/TP" }
+
     includedirs { "src", "wincompat", "wincompat/zlib", "wincompat/pcre-8.32",
     "wincompat/pthread-win32" }
-    links { "Shlwapi" }
+    linkoptions {"/NODEFAULTLIB:\"msvcrt.lib\""}
+    links { "Shlwapi", "zlib", "pthread-win32" }
+
+  project "zlib"
+     kind "StaticLib"
+     language "C"
+     files { "wincompat/zlib/*.c", "wincompat/zlib/*.h" }
+     excludes { "wincompat/zlib/gzclose.c", "wincompat/zlib/gzread.c", "wincompat/zlib/gzwrite.c", "wincompat/zlib/gzlib.c"}
+     includedirs { "wincompat/zlib" }
+
+  project "pthread-win32"
+     kind "StaticLib"
+     language "C"
+     files {
+        "wincompat/pthread-win32/*.h",
+        "wincompat/pthread-win32/pthread.c"
+     }
+     includedirs { "wincompat/pthread-win32" }

@@ -31,7 +31,7 @@ int ag_scandir(const char *dirname,
         }
         if (results_len >= names_len) {
             names_len *= 2;
-            names = realloc(names, sizeof(struct dirent*) * names_len);
+            names = (dirent**)realloc(names, sizeof(struct dirent*) * names_len);
             if (names == NULL) {
                 goto fail;
             }
@@ -44,7 +44,7 @@ int ag_scandir(const char *dirname,
 	 */
         d = malloc(sizeof(struct dirent) + strlen(entry->d_name));
 #else
-        d = malloc(sizeof(struct dirent));
+        d = (dirent*)malloc(sizeof(struct dirent));
 #endif
         if (d == NULL) {
             goto fail;

@@ -1,6 +1,16 @@
 #include "search.h"
 #include "scandir.h"
 
+size_t skip_lookup[256];
+work_queue_t *work_queue;
+work_queue_t *work_queue_tail;
+int done_adding_files;
+pthread_cond_t files_ready;
+pthread_mutex_t print_mtx;
+pthread_mutex_t stats_mtx;
+pthread_mutex_t work_queue_mtx;
+symdir_t *symhash;
+
 void search_buf(const char *buf, const int buf_len,
                 const char *dir_full_path) {
     int binary = -1;  /* 1 = yes, 0 = no, -1 = don't know */
@@ -28,7 +38,7 @@ void search_buf(const char *buf, const int buf_len,
          * capacity for one extra.
          */
         matches_size = 100;
-        matches = ag_malloc(matches_size * sizeof(match));
+        matches = (match*)ag_malloc(matches_size * sizeof(match));
         matches_spare = 1;
     } else {
         matches_size = 0;
@@ -38,7 +48,7 @@ void search_buf(const char *buf, const int buf_len,
 
     if (opts.query_len == 1 && opts.query[0] == '.') {
         matches_size = 1;
-        matches = ag_malloc(matches_size * sizeof(match));
+        matches = (match*)ag_malloc(matches_size * sizeof(match));
         matches[0].start = 0;
         matches[0].end = buf_len;
         matches_len = 1;
@@ -77,7 +87,7 @@ void search_buf(const char *buf, const int buf_len,
             if ((size_t)matches_len + matches_spare >= matches_size) {
                 matches_size = matches ? matches_size * 2 : 100;
                 log_debug("Too many matches in %s. Reallocating matches to %zu.", dir_full_path, matches_size);
-                matches = ag_realloc(matches, matches_size * sizeof(match));
+                matches = (match*)ag_realloc(matches, matches_size * sizeof(match));
             }
 
             matches[matches_len].start = match_ptr - buf;
@@ -104,7 +114,7 @@ void search_buf(const char *buf, const int buf_len,
             if ((size_t)matches_len + matches_spare >= matches_size) {
                 matches_size = matches ? matches_size * 2 : 100;
                 log_debug("Too many matches in %s. Reallocating matches to %zu.", dir_full_path, matches_size);
-                matches = ag_realloc(matches, matches_size * sizeof(match));
+                matches = (match*)ag_realloc(matches, matches_size * sizeof(match));
             }
 
             matches[matches_len].start = offset_vector[0];
@@ -221,7 +231,7 @@ void search_file(const char *file_full_path) {
                 FORMAT_MESSAGE_ALLOCATE_BUFFER |
                 FORMAT_MESSAGE_FROM_SYSTEM |
                 FORMAT_MESSAGE_IGNORE_INSERTS,
-                NULL, GetLastError(), 0, (void*) &buf, 0, NULL);
+                NULL, GetLastError(), 0, buf, 0, NULL);
             log_err("File %s failed to load: %s.", file_full_path, buf);
             LocalFree((void*)buf);
             goto cleanup;
@@ -238,7 +248,7 @@ void search_file(const char *file_full_path) {
             ag_compression_type zip_type = is_zipped(buf, f_len);
             if (zip_type != AG_NO_COMPRESSION) {
                 int _buf_len = (int)f_len;
-                char *_buf = decompress(zip_type, buf, f_len, file_full_path, &_buf_len);
+                char *_buf = (char*)decompress(zip_type, buf, f_len, file_full_path, &_buf_len);
                 if (_buf == NULL || _buf_len == 0) {
                     log_err("Cannot decompress zipped file %s", file_full_path);
                     goto cleanup;
@@ -435,7 +445,7 @@ void search_dir(ignores *ig, const char *base_path, const char *path, const int 
                 }
             }
 
-            queue_item = ag_malloc(sizeof(work_queue_t));
+            queue_item = (work_queue_t *)ag_malloc(sizeof(work_queue_t));
             queue_item->path = dir_full_path;
             queue_item->next = NULL;
             pthread_mutex_lock(&work_queue_mtx);

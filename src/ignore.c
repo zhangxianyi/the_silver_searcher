@@ -19,6 +19,8 @@
 const int fnmatch_flags = 0 & FNM_PATHNAME;
 #endif
 
+ignores *root_ignores;
+
 /* TODO: build a huge-ass list of files we want to ignore by default (build cache stuff, pyc files, etc) */
 
 const char *evil_hardcoded_ignore_files[] = {
