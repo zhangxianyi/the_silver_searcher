@@ -24,7 +24,7 @@ char* realpath(const char *path, char *resolved_path) {
         if (*p == '/') *p = '\\';
         p++;
     }
-    return _fullpath((char*) tmp, resolved_path, MAX_PATH);
+    return _fullpath(resolved_path, tmp, MAX_PATH);
 }
 #endif
 
