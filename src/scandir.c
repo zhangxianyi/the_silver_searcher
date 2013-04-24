@@ -49,7 +49,7 @@ int ag_scandir(const char *dirname,
 	 * Solaris, we need to actually allocate enough space for the whole
 	 * string.
 	 */
-        d = malloc(sizeof(struct dirent) + strlen(entry->d_name));
+        d = malloc(sizeof(struct dirent) + strlen(entry->d_name) + 1);
 #else
         d = (dirent*)malloc(sizeof(struct dirent));
 #endif

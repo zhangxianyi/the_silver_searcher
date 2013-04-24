@@ -17,7 +17,8 @@
 
 #ifdef _WIN32
 char* realpath(const char *path, char *resolved_path) {
-    char tmp[MAX_PATH + 1], *p;
+    char *p;
+    char tmp[MAX_PATH + 1];
     strncpy(tmp, path, sizeof(tmp)-1);
     p = tmp;
     while(*p) {
@@ -162,6 +163,8 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
     const char *home_dir = getenv("HOME");
     char *ignore_file_path = NULL;
     int needs_query = 1;
+    struct stat statbuf;
+    int rv;
 
     init_options();
 
@@ -230,8 +233,11 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         exit(1);
     }
 
-    /* stdin isn't a tty. something's probably being piped to ag */
-    if (!isatty(fileno(stdin))) {
+    rv = fstat(fileno(stdin), &statbuf);
+    if (rv != 0) {
+        die("Error fstat()ing stdin");
+    }
+    if (S_ISFIFO(statbuf.st_mode)) {
         opts.search_stream = 1;
     }
 
@@ -244,8 +250,6 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         group = 0;
 
         /* Don't search the file that stdout is redirected to */
-        struct stat statbuf;
-        int rv;
         rv = fstat(fileno(stdout), &statbuf);
         if (rv != 0) {
             die("Error fstat()ing stdout");
@@ -436,19 +440,20 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
 
     if (!opts.skip_vcs_ignores) {
         FILE *gitconfig_file = NULL;
-        char *gitconfig_res = (char*)ag_malloc(64);
+        size_t buf_len = 0;
+        char *gitconfig_res = NULL;
 
         gitconfig_file = popen("git config -z --get core.excludesfile", "r");
         if (gitconfig_file != NULL) {
-            i = 64;
-            while (fread(gitconfig_res, 1, 64, gitconfig_file) == 64) {
-                i += 64;
-                gitconfig_res = (char*)ag_realloc(gitconfig_res, i);
-            }
+            do {
+                gitconfig_res = ag_realloc(gitconfig_res, buf_len + 65);
+                buf_len += fread(gitconfig_res + buf_len, 1, 64, gitconfig_file);
+            } while (buf_len > 0 && buf_len % 64 == 0);
+            gitconfig_res[buf_len] = '\0';
             load_ignore_patterns(root_ignores, gitconfig_res);
+            free(gitconfig_res);
             pclose(gitconfig_file);
         }
-        free(gitconfig_res);
     }
 
     if (opts.context > 0) {
