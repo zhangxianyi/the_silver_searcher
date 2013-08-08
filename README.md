@@ -2,6 +2,7 @@
 
 A code searching tool similar to `ack`, with a focus on speed.
 
+### Note: I'm very busy with [Floobits](https://floobits.com/) until late August. Please don't take it personally if your pull request or issue languishes. I will go through them as soon as I have time. ###
 
 ## What's so great about Ag? ##
 
@@ -41,16 +42,29 @@ ArchLinux:
 
     pacman -S the_silver_searcher
 
+FreeBSD:
+
+Use either of the following commands depending on which [package management tool](http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/ports.html) your system is configured for:
+
+    pkg add the_silver_searcher
+
+or
+
+    pkg_add the_silver_searcher
+
+To build Ag from source on FreeBSD:
+
+    make -C /usr/ports/textproc/the_silver_searcher install clean
+
 If you want a CentOS rpm or Ubuntu deb, take a look at [Vikram Dighe's packages](http://swiftsignal.com/packages/).
 
 ## Building from source ##
 
-1. Install dependencies (Automake, pkg-config, PCRE):
-    * Ubuntu: `apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev`
+1. Install dependencies (Automake, pkg-config, PCRE, LZMA):
+    * Ubuntu: `apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev`
     * OS X:
         - Install [homebrew](http://mxcl.github.com/homebrew/), then `brew install automake pkg-config pcre`
         - Or install [macports](http://macports.org), then `port install automake pkgconfig pcre`
-    * FreeBSD: Install automake using ports: `cd /usr/ports/devel/automake && make install` ...then install dependencies with pkg\_add: `pkg_add -r pkg-config pcre`
     * Windows: It's complicated. See [this wiki page](https://github.com/ggreer/the_silver_searcher/wiki/Windows).
 2. Run the build script (which just runs aclocal, automake, etc):
     * `./build.sh`
