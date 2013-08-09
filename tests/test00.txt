@@ -1,0 +1,16 @@
+# This file contains descriptions of tests.
+# Hopefully the format is self-explanatory.
+# The high-level overview is that for each test, we list:
+# - files and their contents
+# - ag command to run
+# - expected result of running the command
+--
+test: no files at all
+cmd: ag --ackmate foo
+--
+file: foo.txt
+this is foo bar
+cmd: ag --ackmate foo
+:foo.txt
+1;8 3:this is foo bar
+--
