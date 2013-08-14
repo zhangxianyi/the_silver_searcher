@@ -13,4 +13,3 @@ this is foo bar
 cmd: ag --ackmate foo
 :foo.txt
 1;8 3:this is foo bar
---

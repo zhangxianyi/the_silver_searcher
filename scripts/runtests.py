@@ -20,13 +20,13 @@ To make it easy and compact to write additional tests:
   can investigate the problem
 """
 
-import sys, os, shutil
+import sys, os, shutil, codecs
 from util import run_cmd, run_cmd_throw, memoize
 
 # only when testing, speeds up test cycle
 DISABLE_BUILD = True
 
-def error_exit(msg):
+def fatal(msg):
 	print(msg); sys.exit(1)
 
 @memoize
@@ -66,7 +66,7 @@ def ag_exe_path():
 def verify_started_in_right_directory():
 	path = os.path.join(top_level_dir(), "scripts", "runtests.py")
 	if not os.path.exists(path):
-		error_exit("Must be in top level of source directory and run as ./scripts/runtests.py.\npath=%s" % path)
+		fatal("Must be in top level of source directory and run as ./scripts/runtests.py.\npath=%s" % path)
 
 # just to be safe, if ../ag_tests directory exists we won't run tests and
 # ask the user to delete it manually. This is either a conflict with a directory
@@ -74,7 +74,7 @@ def verify_started_in_right_directory():
 def verify_ag_tests_dir_doesnt_exist():
 	if not os.path.exists(ag_tests_dir()): return
 	print("ag_tests directory ('%s') directory from previous run exist" % ag_tests_dir())
-	error_exit("Please delete it manually.")
+	fatal("Please delete it manually.")
 
 def print_error(out, err, errcode):
 	print("Failed with error code %d" % errcode)
@@ -88,11 +88,11 @@ def build_mac():
 		# trying to be helpful and tell user how to resolve specific problems
 		# TODO: also detect lack of pcre
 		if "No package 'liblzma' found" in err:
-			error_exit("\nIf you're using homebrew, you need to install xz package to get liblzma\nRun: brew install xz")
+			fatal("\nIf you're using homebrew, you need to install xz package to get liblzma\nRun: brew install xz")
 		sys.exit(1)
 
 def build_win():
-	error_exit("Building on Windows not supported yet")
+	fatal("Building on Windows not supported yet")
 
 def build():
 	if DISABLE_BUILD and os.path.exists(ag_exe_path()):
@@ -102,7 +102,7 @@ def build():
 	elif sys.platform.startswith("win"):
 		build_win()
 	else:
-		error_exit("Don't know how to build on this platform. sys.platform=%s, os.name=%s" % (sys.platform, os.name))
+		fatal("Don't know how to build on this platform. sys.platform=%s, os.name=%s" % (sys.platform, os.name))
 
 def path_unix_to_native(path):
 	parts = path.split("/")
@@ -117,7 +117,7 @@ def create_dir_for_file(path):
 def write_to_file(path, content):
 	path = path_unix_to_native(path)
 	create_dir_for_file(path)
-	with open(path, "wb") as fo:
+	with codecs.open(path, "wb", "utf8") as fo:
 		fo.write(content)
 
 class TestFileInfoSimple(object):
@@ -139,7 +139,7 @@ class Tests(object):
 	def __init__(self, test_file):
 		self.test_file = test_file # for debugging
 		self.lines = []
-		with open(test_file, "rb") as fo:
+		with codecs.open(test_file, "rb", "utf8") as fo:
 			self.lines = fo.readlines()
 		self.lines = [line.rstrip() for line in self.lines]
 		self.curr_line = 0
@@ -162,6 +162,9 @@ class Tests(object):
 		self.curr_line += 1
 		return l
 
+	def get_curr_line(self):
+		return self.lines[self.curr_line]
+
 	def raise_error(self):
 		print("Invalid format of tests file '%s'" % self.test_file)
 		curr_line = self.unget_line()
@@ -171,18 +174,50 @@ class Tests(object):
 TEST_START = "test:"
 CMD_START = "cmd:"
 FILE_START = "file:"
-NEW_TEST_START = "--"
+NEW_TEST = "--"
 
-# helper function that
+# helper function that chooses next parsing function based on current line
 def select_parsing_function(tests, *valid):
-	curr_line = tests.unget_line()
-	# TODO: write me
-	return None
+	curr_line = tests.get_curr_line()
+	if curr_line.startswith(TEST_START):
+		if TEST_START in valid: return parse_test_line
+	elif curr_line.startswith(CMD_START):
+		if CMD_START in valid: return parse_cmd_line
+	elif curr_line.startswith(FILE_START):
+		if FILE_START in valid: return parse_file_line
+	elif curr_line == NEW_TEST:
+		if NEW_TEST in valid:
+			tests.next_line()
+			return parse_new_test
+	# TODO: more cases?
+	raise BaseException("Invalid state, curr_line=`%s`, valid=%s" % (curr_line, str(valid)))
 
-def parse_test_start(tests):
-	tests.start_new_test()
+# file: ...
+def parse_file_line(tests):
 	# TODO: write me
-	return None
+	raise BaseException("Not implemented")
+
+# cmd: ...
+# ...
+def parse_cmd_line(tests):
+	assert tests.curr_test_info.cmd == "" # shouldn't be callsed twice
+	line = tests.next_line()
+	parts = line.split(":", 2)
+	tests.curr_test_info.cmd = parts[1].strip()
+	# TODO: parse the command output
+	raise BaseException("Not implemented")
+
+# test: ...
+def parse_test_line(tests):
+	assert tests.curr_test_info.test_name == "" # shouldn't be callsed twice
+	line = tests.next_line()
+	parts = line.split(":", 2)
+	tests.curr_test_info.test_name = parts[1].strip()
+	return select_parsing_function(tests, NEW_TEST, CMD_START, FILE_START)
+
+def parse_new_test(tests):
+	tests.start_new_test()
+	return select_parsing_function(tests, TEST_START, CMD_START, FILE_START)
 
 def parse_at_file_start(tests):
 	while True:
@@ -192,8 +227,8 @@ def parse_at_file_start(tests):
 		# skip comments at the top of the file
 		if line.startswith("#"):
 			continue
-		if line == NEW_TEST_START:
-			return parse_test_start(tests)
+		if line == NEW_TEST:
+			return parse_new_test(tests)
 		tests.raise_error()
 
 # returns an array of TestInfo objects
@@ -210,13 +245,14 @@ def run_one_test_info(test_info):
 def run_tests_in_file(test_file):
 	print(test_file)
 	tests = parse_test_file(test_file)
+	print("%d tests in %s" % (len(tests.test_infos), test_file))
 	for test_info in tests.test_infos:
 		run_one_test(test_info)
 
 def run_tests():
 	ag_cmd = ag_exe_path()
 	if not os.path.exists(ag_cmd):
-		error_exit("Didn't find ag executable. Expected: '%s'" % ag_cmd)
+		fatal("Didn't find ag executable. Expected: '%s'" % ag_cmd)
 	test_files = [os.path.join("tests", f) for f in os.listdir("tests")]
 	for f in test_files:
 		run_tests_in_file(f)
