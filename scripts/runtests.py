@@ -127,9 +127,14 @@ class TestFileInfoSimple(object):
 	def write(self):
 		write_to_file(self.name, self.content)
 
+class FileInfo(object):
+	def __init__(self, path):
+		self.path = path
+		self.data = None
+
 class TestInfo(object):
 	def __init__(self):
-		self.files = []
+		self.files = []  # of FileInfo
 		self.test_name = "" # optional
 		self.cmd = ""
 		self.expected = ""
@@ -147,9 +152,9 @@ class Tests(object):
 		self.test_infos = []
 
 	def start_new_test(self):
-		if self.curr_test_info != None:
-			self.test_infos.append(self.curr_test_info)
-		self.curr_test_info = TestInfo()
+		t = TestInfo()
+		self.curr_test_info = t
+		self.test_infos.append(t)
 
 	def unget_line(self):
 		self.curr_line -= 1
@@ -160,6 +165,7 @@ class Tests(object):
 			return None
 		l = self.lines[self.curr_line]
 		self.curr_line += 1
+		#print(":%s" % l)
 		return l
 
 	def get_curr_line(self):
@@ -192,20 +198,47 @@ def select_parsing_function(tests, *valid):
 	# TODO: more cases?
 	raise BaseException("Invalid state, curr_line=`%s`, valid=%s" % (curr_line, str(valid)))
 
+def read_file_cmd_content(tests):
+	data_lines = []
+	while True:
+		line = tests.next_line()
+		#print(":%s" % line)
+		for valid in [CMD_START, FILE_START]:
+			if line.startswith(valid):
+				#print("*'%s'" % valid)
+				tests.unget_line()
+				return "\n".join(data_lines)
+		data_lines.append(line)
+
 # file: ...
+# ... # file data
 def parse_file_line(tests):
-	# TODO: write me
-	raise BaseException("Not implemented")
+	line = tests.next_line()
+	parts = line.split(":", 2)
+	path = parts[1].strip()
+	fileInfo = FileInfo(path)
+	#print("File: %s" % path)
+	fileInfo.data = read_file_cmd_content(tests)
+	tests.curr_test_info.files.append(fileInfo)
+	#print("File data: \n'%s'\n" % fileInfo.data)
+	return select_parsing_function(tests, CMD_START, FILE_START)
 
 # cmd: ...
-# ...
+# ... # output of the command
 def parse_cmd_line(tests):
 	assert tests.curr_test_info.cmd == "" # shouldn't be callsed twice
 	line = tests.next_line()
 	parts = line.split(":", 2)
 	tests.curr_test_info.cmd = parts[1].strip()
-	# TODO: parse the command output
-	raise BaseException("Not implemented")
+	expected_lines = []
+	while True:
+		line = tests.next_line()
+		if line == None or line == "--":
+			break
+		expected_lines.append(line)
+	tests.curr_test_info.expected = "\n".join(expected_lines)
+	if line == None: return None
+	return parse_new_test
 
 # test: ...
 def parse_test_line(tests):
@@ -239,15 +272,18 @@ def parse_test_file(test_file):
 		parse_func = parse_func(tests)
 	return tests
 
-def run_one_test_info(test_info):
+def run_one_test(test_info, test_no):
 	recreate_ag_tests_dir()
+	print("Running test %d (%s)" % (test_no, str(test_info.test_name)))
 
 def run_tests_in_file(test_file):
 	print(test_file)
 	tests = parse_test_file(test_file)
 	print("%d tests in %s" % (len(tests.test_infos), test_file))
+	test_no = 1
 	for test_info in tests.test_infos:
-		run_one_test(test_info)
+		run_one_test(test_info, test_no)
+		test_no += 1
 
 def run_tests():
 	ag_cmd = ag_exe_path()
