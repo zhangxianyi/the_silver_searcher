@@ -19,7 +19,7 @@ def subprocess_flags():
 def shell_arg():
   if os.name == "nt":
     return True
-  return False
+  return True
 
 # will throw an exception if a command doesn't exist
 # otherwise returns a tuple:
@@ -35,7 +35,6 @@ def run_cmd(*args):
 def run_cmd_throw(*args):
   cmd = " ".join(args)
   print("run_cmd_throw: '%s'" % cmd)
-
   cmdproc = subprocess.Popen(args, shell=shell_arg(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=subprocess_flags())
   res = cmdproc.communicate()
   errcode = cmdproc.returncode

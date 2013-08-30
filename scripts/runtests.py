@@ -21,7 +21,7 @@ To make it easy and compact to write additional tests:
 """
 
 import sys, os, shutil, codecs
-from util import run_cmd, run_cmd_throw, memoize
+import util
 
 # only when testing, speeds up test cycle
 DISABLE_BUILD = True
@@ -29,7 +29,7 @@ DISABLE_BUILD = True
 def fatal(msg):
 	print(msg); sys.exit(1)
 
-@memoize
+@util.memoize
 def top_level_dir():
 	# auto-detect either being in top-level or inside scripts
 	if os.path.exists("runtests.py"):
@@ -40,7 +40,7 @@ def top_level_dir():
 	os.chdir(path)
 	return path
 
-@memoize
+@util.memoize
 def ag_tests_dir():
 	return os.path.realpath(os.path.join(top_level_dir(), "..", "ag_tests"))
 
@@ -57,7 +57,7 @@ def recreate_ag_tests_dir():
 def is_win():
 	return False # TODO:add proper test
 
-@memoize
+@util.memoize
 def ag_exe_path():
 	ag_cmd = "ag"
 	if is_win(): ag_cmd = "ag.exe"
@@ -82,7 +82,7 @@ def print_error(out, err, errcode):
 	if len(err) > 0: print("Stderr:\n%s" % err)
 
 def build_mac():
-	(out, err, errcode) = run_cmd("./build.sh")
+	(out, err, errcode) = util.run_cmd("./build.sh")
 	if errcode != 0:
 		print_error(out, err, errcode)
 		# trying to be helpful and tell user how to resolve specific problems
@@ -106,38 +106,40 @@ def build():
 
 def path_unix_to_native(path):
 	parts = path.split("/")
-	return os.path.join(parts)
+	return os.path.join(*parts)
 
 def create_dir_for_file(path):
-	dir = os.path.dirname()
+	dir = os.path.dirname(path)
 	if not os.path.exists(dir):
 		os.makedirs(dir)
 
 # here path is always in unix format
 def write_to_file(path, content):
-	path = path_unix_to_native(path)
 	create_dir_for_file(path)
 	with codecs.open(path, "wb", "utf8") as fo:
 		fo.write(content)
 
-class TestFileInfoSimple(object):
-	def __init__(self, name, content):
-		self.name = name
-		self.content = content
-	def write(self):
-		write_to_file(self.name, self.content)
-
 class FileInfo(object):
 	def __init__(self, path):
+		#print("Constructing FileInfo(%s)" % path)
 		self.path = path
 		self.data = None
+	def write(self, dir):
+		#print("Writing %s with data:'%s'" % (str(self.path), str(self.data)))
+		p = os.path.join(dir, path_unix_to_native(self.path))
+		write_to_file(p, self.data)
+
+class CmdInfo(object):
+	def __init__(self, cmd, expected):
+		self.cmd = cmd
+		self.expected = expected
 
 class TestInfo(object):
 	def __init__(self):
 		self.files = []  # of FileInfo
+		# TODO: should test_name be part of CmdInfo?
 		self.test_name = "" # optional
-		self.cmd = ""
-		self.expected = ""
+		self.cmds = [] # of CmdInfo
 
 # context for parsing functions
 class Tests(object):
@@ -226,19 +228,21 @@ def parse_file_line(tests):
 # cmd: ...
 # ... # output of the command
 def parse_cmd_line(tests):
-	assert tests.curr_test_info.cmd == "" # shouldn't be callsed twice
 	line = tests.next_line()
 	parts = line.split(":", 2)
-	tests.curr_test_info.cmd = parts[1].strip()
+	cmd = parts[1].strip()
 	expected_lines = []
 	while True:
 		line = tests.next_line()
-		if line == None or line == "--":
+		if line == None or line == "--" or line.startswith(CMD_START):
 			break
 		expected_lines.append(line)
-	tests.curr_test_info.expected = "\n".join(expected_lines)
+	cmd_info = CmdInfo(cmd, "\n".join(expected_lines))
+	tests.curr_test_info.cmds.append(cmd_info)
 	if line == None: return None
-	return parse_new_test
+	if line == "--": return parse_new_test
+	assert line.startswith(CMD_START)
+	return parse_cmd_line
 
 # test: ...
 def parse_test_line(tests):
@@ -272,9 +276,28 @@ def parse_test_file(test_file):
 		parse_func = parse_func(tests)
 	return tests
 
+def run_ag_and_verify_results(cmd_info):
+	cmd = ag_exe_path() + " " + cmd_info.cmd
+	(stdout, stderr, errcmd) = util.run_cmd(cmd)
+	if errcmd != 0:
+		fatal("Running '%s' returned error %d. Stdout:\n'%s'\n Stderr:\n'%s'\n" % (cmd, errcmd, stdout, stderr))
+	if stderr != "":
+		fatal("Running '%s' returned non-empty stderr. Stdout:\n'%s'\n Stderr:\n'%s'\n" % (cmd, stdout, stderr))
+	# TODO: don't know why there's 0 at the end of stdout, so strip it
+	if len(stdout) > 0 and stdout[-1] == chr(0):
+		stdout = stdout[:-1]
+	if stdout != cmd_info.expected:
+		fatal("Running '%s' returned unexpected value. Stdout:\n'%s'\nExpected:\n'%s'\n" % (cmd, stdout, cmd_info.expected))
+
 def run_one_test(test_info, test_no):
 	recreate_ag_tests_dir()
+	for file_info in test_info.files:
+		file_info.write(ag_tests_dir())
 	print("Running test %d (%s)" % (test_no, str(test_info.test_name)))
+	dir = os.getcwd()
+	os.chdir(ag_tests_dir())
+	map(run_ag_and_verify_results, test_info.cmds)
+	os.chdir(dir)
 
 def run_tests_in_file(test_file):
 	print(test_file)
@@ -290,8 +313,7 @@ def run_tests():
 	if not os.path.exists(ag_cmd):
 		fatal("Didn't find ag executable. Expected: '%s'" % ag_cmd)
 	test_files = [os.path.join("tests", f) for f in os.listdir("tests")]
-	for f in test_files:
-		run_tests_in_file(f)
+	map(run_tests_in_file, test_files)
 	# if everything went ok, delete the temporary tests directory
 	delete_ag_tests_dir()
 

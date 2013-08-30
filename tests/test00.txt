@@ -6,10 +6,10 @@
 # - expected result of running the command
 --
 test: no files at all
-cmd: ag --ackmate foo
+cmd: --ackmate foo
 --
 file: foo.txt
 this is foo bar
-cmd: ag --ackmate foo
+cmd: --ackmate foo
 :foo.txt
 1;8 3:this is foo bar
