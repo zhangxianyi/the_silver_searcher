@@ -15,10 +15,9 @@ def subprocess_flags():
     return 0x8000000 #win32con.CREATE_NO_WINDOW?
   return 0
 
-# Apparently shell argument to Popen it must be False on unix/mac and True on windows
 def shell_arg():
   if os.name == "nt":
-    return True
+    return False
   return True
 
 # will throw an exception if a command doesn't exist
@@ -27,7 +26,9 @@ def shell_arg():
 def run_cmd(*args):
   cmd = " ".join(args)
   print("run_cmd: '%s'" % cmd)
-  cmdproc = subprocess.Popen(args, shell=shell_arg(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=subprocess_flags())
+  cmdproc = subprocess.Popen(args, shell=shell_arg(),
+   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+   creationflags=subprocess_flags())
   res = cmdproc.communicate()
   return (res[0], res[1], cmdproc.returncode)
 
@@ -35,7 +36,9 @@ def run_cmd(*args):
 def run_cmd_throw(*args):
   cmd = " ".join(args)
   print("run_cmd_throw: '%s'" % cmd)
-  cmdproc = subprocess.Popen(args, shell=shell_arg(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=subprocess_flags())
+  cmdproc = subprocess.Popen(args, shell=shell_arg(),
+    stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    creationflags=subprocess_flags())
   res = cmdproc.communicate()
   errcode = cmdproc.returncode
   if 0 != errcode:
@@ -44,6 +47,15 @@ def run_cmd_throw(*args):
     if len(res[1]) > 0: print("Stderr:\n%s" % res[1])
     raise Exception("'%s' failed with error code %d" % (cmd, errcode))
   return (res[0], res[1])
+
+# work-around a problem with running devenv from command-line:
+# http://social.msdn.microsoft.com/Forums/en-US/msbuild/thread/9d8b9d4a-c453-4f17-8dc6-838681af90f4
+def kill_msbuild():
+  (stdout, stderr, err) = run_cmd("taskkill", "/F", "/IM", "msbuild.exe")
+  if err not in (0, 128): # 0 is no error, 128 is 'process not found'
+    print("err: %d\n%s%s" % (err, stdout, stderr))
+    print("exiting")
+    sys.exit(1)
 
 # http://code.activestate.com/recipes/578231-probably-the-fastest-memoization-decorator-in-the-/
 def memoize(f):

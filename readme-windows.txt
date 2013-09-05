@@ -1,4 +1,7 @@
-This is a windows port of The Silver Searcher, maintained by
+Windows port of The Silver Searcher.
+------------------------------------
+
+This is a windows (Visual Studio) port of The Silver Searcher, maintained by
 Krzysztof Kowalczyk (http://blog.kowalczyk.info/).
 
 Binaries: http://blog.kowalczyk.info/software/the-silver-searcher-for-windows.html
@@ -24,7 +27,15 @@ Visual Studio project files.
 As much as possible, I wrote Windows versions of unix functions/headers
 used by ag (in wincompat directory).
 
-I also wrote testing framework (scripts/runtests.py and tests), although it's
+Testing framework.
+------------------
+
+I also wrote testing framework (scripts/runtests.* and tests/), although it's
 light on tests currently.
 
-And that's pretty much it.
+On Mac/Unix, run: scripts/runtests.py
+
+On Windows you need Python installed at c:\Python27 and run:
+scripts/runtests.bat
+
+You can change the Python path by editing runtests.bat
