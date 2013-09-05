@@ -26,7 +26,16 @@ def shell_arg():
 def run_cmd(*args):
   cmd = " ".join(args)
   print("run_cmd: '%s'" % cmd)
-  cmdproc = subprocess.Popen(args, shell=shell_arg(),
+  cmdproc = subprocess.Popen(args, shell=False,
+   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+   creationflags=subprocess_flags())
+  res = cmdproc.communicate()
+  return (res[0], res[1], cmdproc.returncode)
+
+def run_cmd_in_shell(*args):
+  cmd = " ".join(args)
+  print("run_cmd: '%s'" % cmd)
+  cmdproc = subprocess.Popen(args, shell=True,
    stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
    creationflags=subprocess_flags())
   res = cmdproc.communicate()
@@ -51,11 +60,14 @@ def run_cmd_throw(*args):
 # work-around a problem with running devenv from command-line:
 # http://social.msdn.microsoft.com/Forums/en-US/msbuild/thread/9d8b9d4a-c453-4f17-8dc6-838681af90f4
 def kill_msbuild():
-  (stdout, stderr, err) = run_cmd("taskkill", "/F", "/IM", "msbuild.exe")
+  (stdout, stderr, err) = run_cmd_in_shell("taskkill", "/F", "/IM", "msbuild.exe")
   if err not in (0, 128): # 0 is no error, 128 is 'process not found'
     print("err: %d\n%s%s" % (err, stdout, stderr))
     print("exiting")
     sys.exit(1)
+
+def normalize_str(s):
+  return s.replace("\r\n", "\n")
 
 # http://code.activestate.com/recipes/578231-probably-the-fastest-memoization-decorator-in-the-/
 def memoize(f):

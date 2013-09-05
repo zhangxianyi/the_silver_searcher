@@ -300,8 +300,10 @@ def run_ag_and_verify_results(cmd_info):
 	# TODO: don't know why there's 0 at the end of stdout, so strip it
 	if len(stdout) > 0 and stdout[-1] == chr(0):
 		stdout = stdout[:-1]
-	if stdout != cmd_info.expected:
-		fatal("Unexpected value. Stdout:\n'%s'\nExpected:\n'%s'\n" % (stdout, cmd_info.expected))
+	result = util.normalize_str(stdout)
+	expected = util.normalize_str(cmd_info.expected)
+	if result != expected:
+		fatal("Unexpected value. Stdout:\n'%s'\nExpected:\n'%s'\n" % (result, expected))
 
 def run_one_test(test_info, test_no):
 	recreate_ag_tests_dir()
