@@ -58,8 +58,8 @@ def recreate_ag_tests_dir():
 def is_win():
 	return sys.platform.startswith("win")
 
-#def is_mac():
-#	return sys.platform == "darwin"
+def is_mac():
+	return sys.platform == "darwin"
 
 def ag_exe_path_win():
 	return os.path.join(top_level_dir(), "rel", "ag.exe")
@@ -334,7 +334,6 @@ def run_tests():
 	delete_ag_tests_dir()
 
 def verify_ag_exe_exists():
-	#util.run_cmd_throw(ag_exe_path(), "--version")
 	(out, err) = util.run_cmd_throw(ag_exe_path(), "--version")
 	print(out)
 

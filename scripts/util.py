@@ -15,11 +15,6 @@ def subprocess_flags():
     return 0x8000000 #win32con.CREATE_NO_WINDOW?
   return 0
 
-def shell_arg():
-  if os.name == "nt":
-    return False
-  return True
-
 # will throw an exception if a command doesn't exist
 # otherwise returns a tuple:
 # (stdout, stderr, errcode)
@@ -45,7 +40,7 @@ def run_cmd_in_shell(*args):
 def run_cmd_throw(*args):
   cmd = " ".join(args)
   print("run_cmd_throw: '%s'" % cmd)
-  cmdproc = subprocess.Popen(args, shell=shell_arg(),
+  cmdproc = subprocess.Popen(args, shell=False,
     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     creationflags=subprocess_flags())
   res = cmdproc.communicate()
