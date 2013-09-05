@@ -448,7 +448,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         gitconfig_file = popen("git config -z --get core.excludesfile", "r");
         if (gitconfig_file != NULL) {
             do {
-                gitconfig_res = ag_realloc(gitconfig_res, buf_len + 65);
+                gitconfig_res = (char*)ag_realloc(gitconfig_res, buf_len + 65);
                 buf_len += fread(gitconfig_res + buf_len, 1, 64, gitconfig_file);
             } while (buf_len > 0 && buf_len % 64 == 0);
             gitconfig_res[buf_len] = '\0';

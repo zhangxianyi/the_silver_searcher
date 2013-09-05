@@ -10,6 +10,8 @@ extern "C"
 
 int getpagesize();
 
+typedef unsigned char uint8_t;
+
 #ifdef __cplusplus
 }
 #endif
