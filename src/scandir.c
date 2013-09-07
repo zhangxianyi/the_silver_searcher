@@ -38,31 +38,32 @@ int ag_scandir(const char *dirname,
                 goto fail;
             }
         }
+
 #if defined _MSC_VER
-    size_t s_len = strlen(entry->d_name) + 1;
-    d = (dirent*)malloc(sizeof(struct dirent) + s_len);
-    char *s = (char*)d + sizeof(struct dirent);
-    d->d_name = s;
-    memcpy(s, entry->d_name, s_len);
+        size_t s_len = strlen(entry->d_name) + 1;
+        d = (dirent*)malloc(sizeof(struct dirent) + s_len);
+        char *s = (char*)d + sizeof(struct dirent);
+        d->d_name = s;
+        memcpy(s, entry->d_name, s_len);
 #else
-#if defined (__SVR4) && defined (__sun)
-	/*
-	 * The d_name member of the dirent struct is declared as char[1] on
-	 * Solaris, we need to actually allocate enough space for the whole
-	 * string.
-	 */
-        d = malloc(sizeof(struct dirent) + strlen(entry->d_name) + 1);
+
+#ifdef __MINGW__
+        d = malloc(sizeof(struct dirent));
 #else
-        d = (struct dirent*)malloc(sizeof(struct dirent));
+        d = malloc(entry->d_reclen);
 #endif
+
+#endif /* _MSC_VER */
+
         if (d == NULL) {
             goto fail;
         }
+#ifdef __MINGW__
         memcpy(d, entry, sizeof(struct dirent));
-#if defined (__SVR4) && defined (__sun)
-        strcpy(d->d_name, entry->d_name);
+#else
+        memcpy(d, entry, entry->d_reclen);
 #endif
-#endif /* _MSC_VER */
+
         names[results_len] = d;
         results_len++;
     }
