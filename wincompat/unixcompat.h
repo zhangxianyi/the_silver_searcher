@@ -26,6 +26,7 @@ typedef int ssize_t;
 
 #define S_ISDIR(mode)  (((mode) & S_IFMT) == S_IFDIR)
 #define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
+#define S_ISFIFO(mode) (((mode) & S_IFMT) == _S_IFIFO)
 
 #define va_copy(dest, src) (dest = src)
 

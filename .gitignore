@@ -26,3 +26,4 @@ vs-premake
 dbg/
 rel/
 *pyc
+the_silver_searcher.spec

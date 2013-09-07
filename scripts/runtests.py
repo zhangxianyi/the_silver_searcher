@@ -23,8 +23,9 @@ To make it easy and compact to write additional tests:
 import sys, os, shutil, codecs
 import util
 
-# only when testing, speeds up test cycle
-DISABLE_BUILD = True
+# set to True only when testing, speeds up test cycle by not compiling
+# the executable if it already exists
+NO_BUILD_IF_EXE_EXISTS = True
 
 def fatal(msg):
 	print(msg); sys.exit(1)
@@ -55,13 +56,21 @@ def recreate_ag_tests_dir():
 	os.mkdir(path)
 
 def is_win():
-	return False # TODO:add proper test
+	return sys.platform.startswith("win")
+
+def is_mac():
+	return sys.platform == "darwin"
+
+def ag_exe_path_win():
+	return os.path.join(top_level_dir(), "rel", "ag.exe")
 
 @util.memoize
 def ag_exe_path():
-	ag_cmd = "ag"
-	if is_win(): ag_cmd = "ag.exe"
-	return os.path.realpath(os.path.join(top_level_dir(), ag_cmd))
+	if is_win():
+		return ag_exe_path_win()
+	else:
+		# mac and unix
+		return os.path.realpath(os.path.join(top_level_dir(), "ag"))
 
 def verify_started_in_right_directory():
 	path = os.path.join(top_level_dir(), "scripts", "runtests.py")
@@ -92,15 +101,20 @@ def build_mac():
 		sys.exit(1)
 
 def build_win():
-	fatal("Building on Windows not supported yet")
+	util.run_cmd_throw("premake4", "vs2010")
+	os.chdir("vs-premake")
+	util.kill_msbuild()
+	util.run_cmd_throw("devenv", "ag.sln", "/Build", "Release", "/Project", "ag.vcxproj")
+	assert os.path.exists("ag.exe")
 
+# TODO: support unix?
 def build():
-	if DISABLE_BUILD and os.path.exists(ag_exe_path()):
+	if NO_BUILD_IF_EXE_EXISTS and os.path.exists(ag_exe_path()):
 		return
-	if sys.platform == "darwin":
-		build_mac()
-	elif sys.platform.startswith("win"):
+	if is_win():
 		build_win()
+	elif is_mac():
+		build_mac()
 	else:
 		fatal("Don't know how to build on this platform. sys.platform=%s, os.name=%s" % (sys.platform, os.name))
 
@@ -278,19 +292,21 @@ def parse_test_file(test_file):
 	return tests
 
 def run_ag_and_verify_results(cmd_info):
-	cmd = ag_exe_path() + " " + cmd_info.cmd
-	(stdout, stderr, errcmd) = util.run_cmd(cmd)
+	args = [ag_exe_path()] + cmd_info.cmd.split()
+	(stdout, stderr, errcmd) = util.run_cmd(*args)
 	if errcmd != 0:
-		fatal("Running '%s' returned error %d. Stdout:\n'%s'\n Stderr:\n'%s'\n" % (cmd, errcmd, stdout, stderr))
+		fatal("Error %d. Stdout:\n'%s'\n Stderr:\n'%s'\n" % (errcmd, stdout, stderr))
 	if stderr != "":
-		fatal("Running '%s' returned non-empty stderr. Stdout:\n'%s'\n Stderr:\n'%s'\n" % (cmd, stdout, stderr))
+		fatal("Non-empty stderr. Stdout:\n'%s'\n Stderr:\n'%s'\n" % (stdout, stderr))
 	# TODO: don't know why there's 0 at the end of stdout, so strip it
 	if len(stdout) > 0 and stdout[-1] == chr(0):
 		stdout = stdout[:-1]
-	if len(stdout) > 0 and stdout[-1] == '\n':
-		stdout = stdout[:-1]
-	if stdout != cmd_info.expected:
-		fatal("Running '%s' returned unexpected value. Stdout:\n'%s'\nExpected:\n'%s'\n" % (cmd, stdout, cmd_info.expected))
+	result = util.normalize_str(stdout)
+	if len(result) > 0 and result[-1] == '\n':
+		result = result[:-1]
+	expected = util.normalize_str(cmd_info.expected)
+	if result != expected:
+		fatal("Unexpected value. Stdout:\n'%s'\nExpected:\n'%s'\n" % (result, expected))
 
 def run_one_test(test_info, test_no):
 	recreate_ag_tests_dir()
@@ -322,11 +338,16 @@ def run_tests():
 	# if everything went ok, delete the temporary tests directory
 	delete_ag_tests_dir()
 
+def verify_ag_exe_exists():
+	(out, err) = util.run_cmd_throw(ag_exe_path(), "--version")
+	print(out)
+
 def main():
 	#print("top_level_dir = %s\nag_tests_dir =  %s\n" % (top_level_dir(), ag_tests_dir()))
  	verify_started_in_right_directory()
 	verify_ag_tests_dir_doesnt_exist()
 	build()
+	verify_ag_exe_exists()
 	run_tests()
 
 if __name__ == "__main__":

@@ -91,7 +91,7 @@ Search options:\n\
 -u --unrestricted       Search all files (ignore .agignore, .gitignore, etc.;\n\
                         searches binary and hidden files as well)\n\
 -U --skip-vcs-ignores   Ignore VCS ignore files\n\
-                        (.gitigore, .hgignore, .svnignore; still obey .agignore)\n\
+                        (.gitignore, .hgignore, .svnignore; still obey .agignore)\n\
 -v --invert-match\n\
 -w --word-regexp        Only match whole words\n\
 -z --search-zip         Search contents of compressed (e.g., gzip) files\n\
@@ -448,7 +448,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         gitconfig_file = popen("git config -z --get core.excludesfile", "r");
         if (gitconfig_file != NULL) {
             do {
-                gitconfig_res = ag_realloc(gitconfig_res, buf_len + 65);
+                gitconfig_res = (char*)ag_realloc(gitconfig_res, buf_len + 65);
                 buf_len += fread(gitconfig_res + buf_len, 1, 64, gitconfig_file);
             } while (buf_len > 0 && buf_len % 64 == 0);
             gitconfig_res[buf_len] = '\0';

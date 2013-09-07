@@ -111,6 +111,7 @@ static void* decompress_zip(const void* buf, const int buf_len,
     return NULL;
 }
 
+#ifdef HAVE_LZMA_H
 static void* decompress_lzma(const void* buf, const int buf_len,
                              const char* dir_full_path, int* new_buf_len) {
     lzma_stream stream = LZMA_STREAM_INIT;
@@ -169,9 +170,12 @@ static void* decompress_lzma(const void* buf, const int buf_len,
     error_out:
     lzma_end(&stream);
     *new_buf_len = 0;
+    if (result) {
+        free(result);
+    }
     return NULL;
 }
-
+#endif
 
 
 /* This function is very hot. It's called on every file when zip is enabled. */
@@ -185,8 +189,10 @@ void* decompress(const ag_compression_type zip_type, const void* buf, const int 
              return decompress_lwz(buf, buf_len, dir_full_path, new_buf_len);
         case AG_ZIP:
              return decompress_zip(buf, buf_len, dir_full_path, new_buf_len);
+#ifdef HAVE_LZMA_H
         case AG_XZ:
              return decompress_lzma(buf, buf_len, dir_full_path, new_buf_len);
+#endif
         case AG_NO_COMPRESSION:
             log_err("File %s is not compressed", dir_full_path);
             break;

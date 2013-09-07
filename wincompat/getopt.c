@@ -186,6 +186,9 @@ int getopt_long(int argc, char* const argv[], const char* optstring,
     if (strncmp(o->name, current_argument, argument_name_length) == 0) {
       match = o;
       ++num_matches;
+      /* if it's an exact match, i.e. there was no '=' in it, this is the one */
+      if (strcmp(o->name, current_argument) == 0)
+          break;
     }
   }
 
