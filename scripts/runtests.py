@@ -242,6 +242,7 @@ def parse_cmd_line(tests):
 	if line == None: return None
 	if line == "--": return parse_new_test
 	assert line.startswith(CMD_START)
+	tests.unget_line()
 	return parse_cmd_line
 
 # test: ...
@@ -286,6 +287,8 @@ def run_ag_and_verify_results(cmd_info):
 	# TODO: don't know why there's 0 at the end of stdout, so strip it
 	if len(stdout) > 0 and stdout[-1] == chr(0):
 		stdout = stdout[:-1]
+	if len(stdout) > 0 and stdout[-1] == '\n':
+		stdout = stdout[:-1]
 	if stdout != cmd_info.expected:
 		fatal("Running '%s' returned unexpected value. Stdout:\n'%s'\nExpected:\n'%s'\n" % (cmd, stdout, cmd_info.expected))
 
@@ -293,7 +296,9 @@ def run_one_test(test_info, test_no):
 	recreate_ag_tests_dir()
 	for file_info in test_info.files:
 		file_info.write(ag_tests_dir())
-	print("Running test %d (%s)" % (test_no, str(test_info.test_name)))
+	subtests = len(test_info.cmds)
+	name = str(test_info.test_name)
+	print("Running test %d (%s), %d subtests" % (test_no, name, subtests))
 	dir = os.getcwd()
 	os.chdir(ag_tests_dir())
 	map(run_ag_and_verify_results, test_info.cmds)
