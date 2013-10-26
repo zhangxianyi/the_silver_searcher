@@ -28,6 +28,10 @@ cmd: --ackmate -C foo
 1;8 3:this is foo bar on first line
 2:second
 3:third
+cmd: --ackmate -C 1 foo
+:foo.txt
+1;8 3:this is foo bar on first line
+2:second
 cmd: --ackmate -v foo
 :foo.txt
 1;0 8:this is foo bar on first line
