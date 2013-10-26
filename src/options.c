@@ -151,6 +151,22 @@ void cleanup_options() {
     }
 }
 
+/* Apparently on Unix atoi() returns EINVAL if a string is not a number
+   but Visual Studio's CRT doesn't, so we must check explicitly. */
+static int is_valid_num(char *s)
+{
+    char *num = s;
+    while (s && *s && *s != ' ') {
+        if (!(*s >= '0' && *s <= '9'))
+            return 0;
+        ++s;
+    }
+    /* for max Unix compat, also see what atoi() says */
+    if (0 == atoi(num) && errno == EINVAL)
+        return 0;
+    return 1;
+}
+
 void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
     int ch;
     int i;
@@ -273,11 +289,12 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
                 break;
             case 'C':
                 if (optarg) {
-                    opts.context = atoi(optarg);
-                    if (opts.context == 0 && errno == EINVAL) {
+                    if (!is_valid_num(optarg)) {
                         /* This arg must be the search string instead of the context length */
                         optind--;
                         opts.context = DEFAULT_CONTEXT_LEN;
+                    } else {
+                        opts.context = atoi(optarg);
                     }
                 } else {
                     opts.context = DEFAULT_CONTEXT_LEN;
