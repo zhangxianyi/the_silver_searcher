@@ -3,6 +3,6 @@
 
 #include "unixcompat.h"
 
-#define PACKAGE_VERSION "0.15pre"
+#define PACKAGE_VERSION "0.17pre"
 
 #endif
