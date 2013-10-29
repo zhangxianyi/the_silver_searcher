@@ -61,6 +61,7 @@ def is_win():
 def is_mac():
 	return sys.platform == "darwin"
 
+@util.memoize
 def ag_exe_path_win():
 	return os.path.join(top_level_dir(), "rel", "ag.exe")
 
@@ -105,7 +106,7 @@ def build_win():
 	os.chdir("vs-premake")
 	util.kill_msbuild()
 	util.run_cmd_throw("devenv", "ag.sln", "/Build", "Release", "/Project", "ag.vcxproj")
-	assert os.path.exists("ag.exe")
+	assert os.path.exists(ag_exe_path_win()), "%s doesn't exist" % ag_exe_path_win()
 
 # TODO: support unix?
 def build():
