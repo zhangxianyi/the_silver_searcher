@@ -28,6 +28,9 @@ typedef int ssize_t;
 #define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
 #define S_ISFIFO(mode) (((mode) & S_IFMT) == _S_IFIFO)
 
+/* VS 2013 introduced va_copy */
+#if _MSC_VER < 1800
 #define va_copy(dest, src) (dest = src)
+#endif
 
 #endif
