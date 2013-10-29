@@ -1,15 +1,3 @@
 Things that could be done for windows port:
 
-1. in options.c:
-gitconfig_file = popen("git config -z --get core.excludesfile", "r");
-(and other uses of popen).
-
-If git is not installed, the following message ends up in stderr:
-
-"'git' is not recognized as an internal or external command, operable program or batch file."
-
-This is because popen() really does "cmd.exe /c git config ..." and executes
-it via CreateProcess() and, I'm guessing, cmd.exe is the one printing this
-message to stderr.
-
-I could re-implement popen() in a way that doesn't add "cmd.exe"
+1. Big project: write a version that has GUI

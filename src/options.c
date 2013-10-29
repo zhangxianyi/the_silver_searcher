@@ -30,6 +30,69 @@ char* realpath(const char *path, char *resolved_path) {
 }
 #endif
 
+#ifdef _MSC_VER
+/* Unlike popen(), it doesn't pollutes stderr if the executable doesn't exist.
+   This might be common on Windows (no git installed)
+*/
+static char *read_program_out(char *cmd) {
+    BOOL ok = TRUE;
+    HANDLE hRead = NULL, hWrite = NULL;
+    char *res = NULL;
+    DWORD dwRead;
+    DWORD totalLen = 0;
+    static const int BUF_SIZE = 4096;
+    char buf[BUF_SIZE];
+    STARTUPINFOA si = { 0 };
+    SECURITY_ATTRIBUTES sa = { 0 };
+    PROCESS_INFORMATION pi = { 0 };
+
+    sa.nLength = sizeof(sa);
+    sa.lpSecurityDescriptor = NULL;
+    sa.bInheritHandle = TRUE;
+
+    if (!CreatePipe(&hRead, &hWrite, &sa, 0))
+        goto Exit;
+
+    if (!SetHandleInformation(hRead, HANDLE_FLAG_INHERIT, 0))
+        goto Exit;
+
+    si.cb = sizeof(si);
+    si.dwFlags    = STARTF_USESTDHANDLES;
+    si.hStdInput = hWrite;
+    si.hStdOutput = hWrite;
+    si.hStdError  = hWrite;
+
+    if (!CreateProcessA(NULL, cmd, NULL, NULL, TRUE,
+        NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+        goto Exit;
+
+    CloseHandle(hWrite);
+    hWrite = NULL;
+
+    for (;;) {
+        ok = ReadFile(hRead, buf, BUF_SIZE, &dwRead, NULL);
+        if (!ok || dwRead == 0)
+            break;
+        res = (char*)ag_realloc(res, totalLen + dwRead + 1);
+        memcpy(res + totalLen, buf, dwRead);
+        totalLen += dwRead;
+        res[totalLen] = 0;
+    }
+
+    if (!ok && (ERROR_BROKEN_PIPE != GetLastError())) {
+        free(res);
+        res = NULL;
+    }
+
+Exit:
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    CloseHandle(hRead);
+    CloseHandle(hWrite);
+    return res;
+}
+#endif
+
 cli_options opts;
 
 const char *color_line_number = "\\e[1;33m"; /* yellow with black background */
@@ -496,6 +559,12 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         size_t buf_len = 0;
         char *gitconfig_res = NULL;
 
+#ifdef _MSC_VER
+        gitconfig_res = read_program_out("git config -z --get core.excludesfile");
+        if (gitconfig_res != NULL)
+            load_ignore_patterns(root_ignores, gitconfig_res);
+        free(gitconfig_res);
+#else
         gitconfig_file = popen("git config -z --get core.excludesfile", "r");
         if (gitconfig_file != NULL) {
             do {
@@ -507,6 +576,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
             free(gitconfig_res);
             pclose(gitconfig_file);
         }
+#endif
     }
 
     if (opts.context > 0) {
