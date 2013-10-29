@@ -12,6 +12,7 @@ and Visual Studio.
 Compilation steps:
  * run: premake4 vs2010
  * open vs-premake/ag.sln in Visual Studio 2010 or later, proceed as usual
+ * the binaries end up as rel/ag.exe or dbg/ag.exe (release/debug builds)
 
 How this port was made.
 -----------------------
