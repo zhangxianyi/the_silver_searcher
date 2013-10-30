@@ -28,6 +28,11 @@ int main(int argc, char **argv) {
     pthread_t *workers = NULL;
     int workers_len;
 
+#ifdef KJK_BUILD
+    extern void setup_crash_handler(); /* in kjk_crash_handler.cpp */
+    setup_crash_handler();
+#endif
+
     set_log_level(LOG_LEVEL_WARN);
 
     work_queue = NULL;

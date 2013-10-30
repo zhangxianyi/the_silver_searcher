@@ -1,3 +1,5 @@
 Things that could be done for windows port:
 
-1. Big project: write a version that has GUI
+1. Crash handler, like in SumatraPDF
+
+2. Big project: write a version that has GUI

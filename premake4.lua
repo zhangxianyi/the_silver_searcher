@@ -3,7 +3,7 @@
 
 -- common settings for solutions
 function solution_common()
-  configurations { "Debug", "Release" }
+  configurations { "Debug", "Release", "ReleaseKjk" }
   location "vs-premake" -- this is where generated solution/project files go
 
   -- Symbols - generate .pdb files
@@ -24,9 +24,11 @@ function solution_common()
      targetdir "rel"
      flags { "Optimize" }
      defines { "NDEBUG" }
-     -- 4189 - variable not used, happens with CrashIf() macros that are no-op
-     --        in release builds
-     buildoptions { "/wd4189" }
+
+  configuration "ReleaseKjk"
+     targetdir "rel"
+     flags { "Optimize" }
+     defines { "NDEBUG", "KJK_BUILD" }
 
   configuration {"vs*"}
     -- defines { "_WIN32", "WIN32", "WINDOWS", "_CRT_SECURE_NO_WARNINGS" }
@@ -53,6 +55,7 @@ solution "ag"
       "wincompat/dirent.*",
       "wincompat/getopt.*",
       "wincompat/unistd.*",
+      "wincompat/kjk_crash_handler.*",
     }
 
     configuration {"vs*"}
