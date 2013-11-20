@@ -95,9 +95,9 @@ Exit:
 
 cli_options opts;
 
-const char *color_line_number = "\\e[1;33m"; /* yellow with black background */
-const char *color_match = "\\e[30;43m"; /* black with yellow background */
-const char *color_path = "\\e[1;32m";   /* bold green */
+const char *color_line_number = "\x1B[1;33m"; /* yellow with black background */
+const char *color_match = "\x1B[30;43m"; /* black with yellow background */
+const char *color_path = "\x1B[1;32m";   /* bold green */
 
 /* TODO: try to obey out_fd? */
 void usage() {
@@ -480,15 +480,15 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
                     break;
                 } else if (strcmp(longopts[opt_index].name, "color-line-number") == 0) {
                     free(opts.color_line_number);
-                    ag_asprintf(&opts.color_line_number, "\\e[%sm", optarg);
+                    ag_asprintf(&opts.color_line_number, "\x1b[%sm", optarg);
                     break;
                 } else if (strcmp(longopts[opt_index].name, "color-match") == 0) {
                     free(opts.color_match);
-                    ag_asprintf(&opts.color_match, "\\e[%sm", optarg);
+                    ag_asprintf(&opts.color_match, "\x1b[%sm", optarg);
                     break;
                 } else if (strcmp(longopts[opt_index].name, "color-path") == 0) {
                     free(opts.color_path);
-                    ag_asprintf(&opts.color_path, "\\e[%sm", optarg);
+                    ag_asprintf(&opts.color_path, "\x1b[%sm", optarg);
                     break;
                 } else if (strcmp(longopts[opt_index].name, "silent") == 0) {
                     set_log_level(LOG_LEVEL_NONE);
