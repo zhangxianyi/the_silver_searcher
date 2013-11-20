@@ -13,6 +13,22 @@ int first_file_match = 1;
 
 const char *color_reset = "\x1b[0m\x1b[K";
 
+#ifdef _WIN32
+#include <windows.h>
+static HANDLE output_handle = NULL;
+inline void fix_output_handle(void) { output_handle = GetStdHandle(STD_OUTPUT_HANDLE); }
+inline void set_output_color(WORD c) { if(!output_handle) fix_output_handle(); if(output_handle) SetConsoleTextAttribute(output_handle, c); }
+inline void color_highlight_path   (FILE *out_fd) { set_output_color(FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY ); }
+inline void color_highlight_match  (FILE *out_fd) { set_output_color(FOREGROUND_BLUE |                  FOREGROUND_GREEN | FOREGROUND_INTENSITY ); }
+inline void color_highlight_line_no(FILE *out_fd) { set_output_color(                  FOREGROUND_RED |                    FOREGROUND_INTENSITY ); }
+inline void color_normal           (FILE *out_fd) { set_output_color(FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN                        ); }
+#else
+void color_highlight_path   (FILE *out_fd) { fprintf(out_fd, "%s", opts.color_path       ); }
+void color_highlight_match  (FILE *out_fd) { fprintf(out_fd, "%s", opts.color_match      ); }
+void color_highlight_line_no(FILE *out_fd) { fprintf(out_fd, "%s", opts.color_line_number); }
+void color_normal           (FILE *out_fd) { fprintf(out_fd, "%s", color_reset           ); }
+#endif
+
 void print_path(const char* path, const char sep) {
     log_debug("printing path");
     path = normalize_path(path);
@@ -21,7 +37,10 @@ void print_path(const char* path, const char sep) {
         fprintf(out_fd, ":%s%c", path, sep);
     } else {
         if (opts.color) {
-            fprintf(out_fd, "%s%s%s%c", opts.color_path, path, color_reset, sep);
+            color_highlight_path(out_fd);
+            fprintf(out_fd, "%s", path);
+            color_normal(out_fd);
+            fprintf(out_fd, "%c", sep);
         } else {
             fprintf(out_fd, "%s%c", path, sep);
         }
@@ -139,26 +158,26 @@ void print_file_matches(const char* path, const char* buf, const int buf_len, co
                     }
 
                     if (printing_a_match && opts.color) {
-                        fprintf(out_fd, "%s", opts.color_match);
+                        color_highlight_match(out_fd);
                     }
                     for (j = prev_line_offset; j <= i; j++) {
                         if (j == matches[last_printed_match].end && last_printed_match < matches_len) {
                             if (opts.color) {
-                                fprintf(out_fd, "%s", color_reset);
+                                color_normal(out_fd);
                             }
                             printing_a_match = FALSE;
                             last_printed_match++;
                         }
                         if (j == matches[last_printed_match].start && last_printed_match < matches_len) {
                             if (opts.color) {
-                                fprintf(out_fd, "%s", opts.color_match);
+                                color_highlight_match(out_fd);
                             }
                             printing_a_match = TRUE;
                         }
                         fputc(buf[j], out_fd);
                     }
                     if (printing_a_match && opts.color) {
-                        fprintf(out_fd, "%s", color_reset);
+                        color_normal(out_fd);
                     }
                 }
             } else if (lines_since_last_match <= opts.after) {
@@ -197,7 +216,10 @@ void print_line_number(const int line, const char sep) {
     log_debug("printing line number");
 
     if (opts.color) {
-        fprintf(out_fd, "%s%i%s%c", opts.color_line_number, line, color_reset, sep);
+        color_highlight_line_no(out_fd);
+        fprintf(out_fd, "%i", line);
+        color_normal(out_fd);
+        fprintf(out_fd, "%c", sep);
     } else {
         fprintf(out_fd, "%i%c", line, sep);
     }
