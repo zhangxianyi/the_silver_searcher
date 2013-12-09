@@ -32,25 +32,29 @@ void color_normal           (FILE *out_fd) { fprintf(out_fd, "%s", color_reset  
 void print_path(const char* path, const char sep) {
     log_debug("printing path");
     path = normalize_path(path);
+    const char *buf = fix_path_slashes(path);
 
     if (opts.ackmate) {
-        fprintf(out_fd, ":%s%c", path, sep);
+        fprintf(out_fd, ":%s%c", buf, sep);
     } else {
         if (opts.color) {
             color_highlight_path(out_fd);
-            fprintf(out_fd, "%s", path);
+            fprintf(out_fd, "%s", buf);
             color_normal(out_fd);
             fprintf(out_fd, "%c", sep);
         } else {
-            fprintf(out_fd, "%s%c", path, sep);
+            fprintf(out_fd, "%s%c", buf, sep);
         }
     }
+    free((void*)buf);
 }
 
 void print_binary_file_matches(const char* path) {
     path = normalize_path(path);
+    const char *buf = fix_path_slashes(path);
     print_file_separator();
-    fprintf(out_fd, "Binary file %s matches.\n", path);
+    fprintf(out_fd, "Binary file %s matches.\n", buf);
+    free((void*)buf);
 }
 
 void print_file_matches(const char* path, const char* buf, const int buf_len, const match matches[], const int matches_len) {
@@ -239,4 +243,15 @@ const char* normalize_path(const char* path) {
     } else {
         return path;
     }
+}
+
+const char* fix_path_slashes(const char* path) {
+    char* buf = strdup(path);
+#ifdef _WIN32
+    for(char* i = buf; *i; ++i)
+    {
+        if(*i == '/') *i = '\\';
+    }
+#endif
+    return buf;
 }

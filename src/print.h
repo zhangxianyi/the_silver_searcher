@@ -9,5 +9,6 @@ void print_file_matches(const char* path, const char* buf, const int buf_len, co
 void print_line_number(const int line, const char sep);
 void print_file_separator();
 const char* normalize_path(const char* path);
+const char *fix_path_slashes(const char* path);
 
 #endif
