@@ -15,13 +15,37 @@ const char *color_reset = "\x1b[0m\x1b[K";
 
 #ifdef _WIN32
 #include <windows.h>
-static HANDLE output_handle = NULL;
-inline void fix_output_handle(void) { output_handle = GetStdHandle(STD_OUTPUT_HANDLE); }
-inline void set_output_color(WORD c) { if(!output_handle) fix_output_handle(); if(output_handle) SetConsoleTextAttribute(output_handle, c); }
+static HANDLE console_handle = NULL;
+static WORD default_attr = FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN;
+
+static int get_console_handle(void) {
+    CONSOLE_SCREEN_BUFFER_INFO buf;
+    BOOL ok;
+    if (console_handle != NULL)
+        return 1;
+    console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (!console_handle)
+        return 0;
+    ok = GetConsoleScreenBufferInfo(console_handle, &buf);
+    if (ok) {
+        default_attr = buf.wAttributes;
+    }
+    return 1;
+}
+
+void set_output_color(WORD c) {
+    if (!get_console_handle())
+        return;
+    SetConsoleTextAttribute(console_handle, c);
+}
+
 inline void color_highlight_path   (FILE *out_fd) { set_output_color(FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY ); }
 inline void color_highlight_match  (FILE *out_fd) { set_output_color(FOREGROUND_BLUE |                  FOREGROUND_GREEN | FOREGROUND_INTENSITY ); }
 inline void color_highlight_line_no(FILE *out_fd) { set_output_color(                  FOREGROUND_RED |                    FOREGROUND_INTENSITY ); }
-inline void color_normal           (FILE *out_fd) { set_output_color(FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN                        ); }
+inline void color_normal           (FILE *out_fd) {
+    get_console_handle();
+    set_output_color(default_attr);
+}
 #else
 void color_highlight_path   (FILE *out_fd) { fprintf(out_fd, "%s", opts.color_path       ); }
 void color_highlight_match  (FILE *out_fd) { fprintf(out_fd, "%s", opts.color_match      ); }
