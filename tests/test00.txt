@@ -38,3 +38,5 @@ cmd: --ackmate -v foo
 2;second
 3;third
 4;-32 49:and the last Line
+cmd: --ackmate foo foo.txt
+1;8 3:this is foo bar on first line
