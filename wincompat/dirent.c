@@ -13,6 +13,8 @@
 #include <io.h> /* _findfirst and _findnext set errno iff they return -1 */
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -33,42 +35,42 @@ DIR *opendir(const char *name)
 {
     DIR *dir = 0;
 
-    if(name && name[0])
-    {
-        size_t base_length = strlen(name);
-        const char *all = /* search pattern must end with suitable wildcard */
-            strchr("/\\", name[base_length - 1]) ? "*" : "/*";
-
-        if((dir = (DIR *) malloc(sizeof *dir)) != 0 &&
-           (dir->name = (char *) malloc(base_length + strlen(all) + 1)) != 0)
-        {
-            strcat(strcpy(dir->name, name), all);
-
-            if((dir->handle =
-                (handle_type) _findfirst(dir->name, &dir->info)) != -1)
-            {
-                dir->result.d_name = 0;
-            }
-            else /* rollback */
-            {
-                free(dir->name);
-                free(dir);
-                dir = 0;
-            }
-        }
-        else /* rollback */
-        {
-            free(dir);
-            dir   = 0;
-            errno = ENOMEM;
-        }
-    }
-    else
-    {
-        errno = EINVAL;
+    if (!name || (0 == name[0])) {
+        errno = ENOENT;
+        return 0;
     }
 
+    size_t base_len = strlen(name);
+    const char *all = /* search pattern must end with suitable wildcard */
+        strchr("/\\", name[base_len - 1]) ? "*" : "/*";
+
+    dir = (DIR *) calloc(sizeof *dir, 1);
+    dir->name = (char *) malloc(base_len + strlen(all) + 1);
+    if (!dir->name) {
+        errno = ENOMEM;
+        goto Error;
+    }
+
+    strcat(strcpy(dir->name, name), all);
+
+    dir->handle = (handle_type) _findfirst(dir->name, &dir->info);
+    if (dir->handle == -1) {
+        struct stat stat_buf = { 0 };
+        int res = stat(name, &stat_buf);
+        if (-1 == res) {
+            errno = ENOENT;
+            goto Error;
+        }
+        errno = ENOTDIR;
+        goto Error;
+    }
+    dir->result.d_name = 0;
     return dir;
+Error:
+    if (dir)
+        free(dir->name);
+    free(dir);
+    return 0;
 }
 
 int closedir(DIR *dir)
