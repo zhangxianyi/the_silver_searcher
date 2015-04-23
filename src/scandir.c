@@ -19,7 +19,7 @@ int ag_scandir(const char *dirname,
         goto fail;
     }
 
-    names = malloc(sizeof(struct dirent *) * names_len);
+    names = (struct dirent**)malloc(sizeof(struct dirent*) * names_len);
     if (names == NULL) {
         goto fail;
     }
@@ -31,12 +31,21 @@ int ag_scandir(const char *dirname,
         if (results_len >= names_len) {
             struct dirent **tmp_names = names;
             names_len *= 2;
-            names = realloc(names, sizeof(struct dirent *) * names_len);
+            names = (struct dirent**)realloc(names, sizeof(struct dirent*) * names_len);
             if (names == NULL) {
                 free(tmp_names);
                 goto fail;
             }
         }
+
+
+#if defined _MSC_VER
+        size_t s_len = strlen(entry->d_name) + 1;
+        d = (struct dirent *)malloc(sizeof(struct dirent) + s_len);
+        char *s = (char*)d + sizeof(struct dirent);
+        d->d_name = s;
+        memcpy(s, entry->d_name, s_len);
+#else
 
 #if defined(__MINGW32__) || defined(__CYGWIN__)
         d = malloc(sizeof(struct dirent));
@@ -52,6 +61,9 @@ int ag_scandir(const char *dirname,
 #else
         memcpy(d, entry, entry->d_reclen);
 #endif
+
+        
+#endif /* _MSC_VER */
 
         names[results_len] = d;
         results_len++;

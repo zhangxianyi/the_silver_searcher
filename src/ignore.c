@@ -13,11 +13,13 @@
 
 #ifdef _WIN32
 #include <shlwapi.h>
-#define fnmatch(x, y, z) (!PathMatchSpec(y, x))
+#define fnmatch(x, y, z) (!PathMatchSpecA(y, x))
 #else
 #include <fnmatch.h>
 const int fnmatch_flags = FNM_PATHNAME;
 #endif
+
+ignores *root_ignores;
 
 /* TODO: build a huge-ass list of files we want to ignore by default (build cache stuff, pyc files, etc) */
 
@@ -42,7 +44,7 @@ int is_empty(ignores *ig) {
 };
 
 ignores *init_ignore(ignores *parent, const char *dirname, const size_t dirname_len) {
-    ignores *ig = ag_malloc(sizeof(ignores));
+    ignores *ig = (ignores *)ag_malloc(sizeof(ignores));
     ig->extensions = NULL;
     ig->extensions_len = 0;
     ig->names = NULL;
@@ -66,7 +68,7 @@ ignores *init_ignore(ignores *parent, const char *dirname, const size_t dirname_
         ag_asprintf(&(ig->abs_path), "%s/%s", parent->abs_path, dirname);
         ig->abs_path_len = parent->abs_path_len + 1 + dirname_len;
     } else if (dirname_len == 1 && dirname[0] == '.') {
-        ig->abs_path = ag_malloc(sizeof(char));
+        ig->abs_path = (char *)ag_malloc(sizeof(char));
         ig->abs_path[0] = '\0';
         ig->abs_path_len = 0;
     } else {
@@ -145,7 +147,7 @@ void add_ignore_pattern(ignores *ig, const char *pattern) {
     char **patterns;
 
     /* a balanced binary tree is best for performance, but I'm lazy */
-    *patterns_p = patterns = ag_realloc(*patterns_p, (*patterns_len) * sizeof(char *));
+    *patterns_p = patterns = (char **)ag_realloc(*patterns_p, (*patterns_len) * sizeof(char *));
     /* TODO: de-dupe these patterns */
     for (i = *patterns_len - 1; i > 0; i--) {
         if (strcmp(pattern, patterns[i - 1]) > 0) {
@@ -200,7 +202,7 @@ void load_svn_ignore_patterns(ignores *ig, const char *path) {
 
     char *entry = NULL;
     size_t entry_len = 0;
-    char *key = ag_malloc(32); /* Sane start for max key length. */
+    char *key = (char*)ag_malloc(32); /* Sane start for max key length. */
     size_t key_len = 0;
     size_t bytes_read = 0;
     char *entry_line;
@@ -208,7 +210,7 @@ void load_svn_ignore_patterns(ignores *ig, const char *path) {
     int matches;
 
     while (fscanf(fp, "K %zu\n", &key_len) == 1) {
-        key = ag_realloc(key, key_len + 1);
+        key = (char*)ag_realloc(key, key_len + 1);
         bytes_read = fread(key, 1, key_len, fp);
         key[key_len] = '\0';
         matches = fscanf(fp, "\nV %zu\n", &entry_len);
@@ -224,7 +226,7 @@ void load_svn_ignore_patterns(ignores *ig, const char *path) {
             continue;
         }
         /* Aww yeah. Time to ignore stuff */
-        entry = ag_malloc(entry_len + 1);
+        entry = (char*)ag_malloc(entry_len + 1);
         bytes_read = fread(entry, 1, entry_len, fp);
         entry[bytes_read] = '\0';
         log_debug("entry: %s", entry);

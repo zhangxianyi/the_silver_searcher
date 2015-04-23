@@ -4,6 +4,7 @@ AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None
+#BasedOnStyle: LLVM
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: false
@@ -24,6 +25,7 @@ IndentFunctionDeclarationAfterType: false
 IndentWidth: 4
 IndentWrappedFunctionNames: false
 KeepEmptyLinesAtTheStartOfBlocks: false
+IndentCaseLabels: true
 Language: Cpp
 MaxEmptyLinesToKeep: 2
 PointerAlignment: Right

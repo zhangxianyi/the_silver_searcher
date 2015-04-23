@@ -14,6 +14,9 @@
 #define getc_unlocked(x) getc(x)
 #endif
 
+FILE *out_fd;
+ag_stats stats;
+
 #define CHECK_AND_RETURN(ptr)             \
     if (ptr == NULL) {                    \
         die("Memory allocation failed."); \
@@ -121,7 +124,7 @@ size_t suffix_len(const char *s, const size_t s_len, const size_t pos, const int
 void generate_find_skip(const char *find, const size_t f_len, size_t **skip_lookup, const int case_sensitive) {
     size_t i;
     size_t s_len;
-    size_t *sl = ag_malloc(f_len * sizeof(size_t));
+    size_t *sl = (size_t *)ag_malloc(f_len * sizeof(size_t));
     *skip_lookup = sl;
     size_t last_prefix = f_len;
 
@@ -131,7 +134,6 @@ void generate_find_skip(const char *find, const size_t f_len, size_t **skip_look
         }
         sl[i - 1] = last_prefix + (f_len - i);
     }
-
     for (i = 0; i < f_len; i++) {
         s_len = suffix_len(find, f_len, i, case_sensitive);
         if (find[i - s_len] != find[f_len - 1 - s_len]) {
@@ -275,10 +277,11 @@ void compile_study(pcre **re, pcre_extra **re_extra, char *q, const int pcre_opt
 }
 
 /* This function is very hot. It's called on every file. */
-int is_binary(const void *buf, const size_t buf_len) {
+
+int is_binary(const char* buf, const size_t buf_len) {
     size_t suspicious_bytes = 0;
     size_t total_bytes = buf_len > 512 ? 512 : buf_len;
-    const unsigned char *buf_c = buf;
+    const unsigned char *buf_c = (const unsigned char *)buf;
     size_t i;
 
     if (buf_len == 0) {
@@ -498,7 +501,7 @@ char *fgetln(FILE *fp, size_t *lenp) {
             size_t nsize;
             char *newbuf;
             nsize = used + BUFSIZ;
-            if (!(newbuf = realloc(buf, nsize))) {
+            if (!(newbuf = (char*)realloc(buf, nsize))) {
                 funlockfile(fp);
                 if (buf)
                     free(buf);
@@ -535,7 +538,7 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream) {
     if (len >= *n) {
         /* line is too big for buffer, must realloc */
         /* double the buffer, bail on error */
-        if (!(newlnptr = realloc(*lineptr, len * 2))) {
+        if (!(newlnptr = (char*)realloc(*lineptr, len * 2))) {
             return -1;
         }
         *lineptr = newlnptr;
@@ -557,6 +560,7 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream) {
 #endif
 
 #ifndef HAVE_REALPATH
+#define HAVE_REALPATH
 /*
  * realpath() for Windows. Turns slashes into backslashes and calls _fullpath
  */
@@ -613,7 +617,7 @@ int vasprintf(char **ret, const char *fmt, va_list args) {
 #ifdef __va_copy
     /* non-standard macro, but usually exists */
     __va_copy(args2, args);
-#elif va_copy
+#elif defined(va_copy)
     /* C99 macro. We compile with -std=c89 but you never know */
     va_copy(args2, args);
 #else
@@ -625,7 +629,7 @@ int vasprintf(char **ret, const char *fmt, va_list args) {
     if (rv < 0) {
         return rv;
     }
-    *ret = malloc(++rv); /* vsnprintf doesn't count \0 */
+    *ret = (char*)malloc(++rv); /* vsnprintf doesn't count \0 */
     if (*ret == NULL) {
         return -1;
     }

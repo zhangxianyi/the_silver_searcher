@@ -17,20 +17,68 @@ int first_file_match = 1;
 
 const char *color_reset = "\033[0m\033[K";
 
+
+#ifdef _WIN32
+#include <windows.h>
+static HANDLE console_handle = NULL;
+static WORD default_attr = FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN;
+
+static int get_console_handle(void) {
+    CONSOLE_SCREEN_BUFFER_INFO buf;
+    BOOL ok;
+    if (console_handle != NULL)
+        return 1;
+    console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (!console_handle)
+        return 0;
+    ok = GetConsoleScreenBufferInfo(console_handle, &buf);
+    if (ok) {
+        default_attr = buf.wAttributes;
+    }
+    return 1;
+}
+
+void set_output_color(WORD c) {
+    if (!get_console_handle())
+        return;
+    SetConsoleTextAttribute(console_handle, c);
+}
+
+void color_highlight_path(FILE *out_fd) { set_output_color(FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY); }
+void color_highlight_match(FILE *out_fd) { set_output_color(FOREGROUND_BLUE |                  FOREGROUND_GREEN | FOREGROUND_INTENSITY ); }
+void color_highlight_line_no(FILE *out_fd) { set_output_color(                  FOREGROUND_RED |                    FOREGROUND_INTENSITY ); }
+void color_normal(FILE *out_fd) {
+    get_console_handle();
+    set_output_color(default_attr);
+}
+#else
+void color_highlight_path   (FILE *out_fd) { fprintf(out_fd, "%s", opts.color_path       ); }
+void color_highlight_match  (FILE *out_fd) { fprintf(out_fd, "%s", opts.color_match      ); }
+void color_highlight_line_no(FILE *out_fd) { fprintf(out_fd, "%s", opts.color_line_number); }
+void color_normal           (FILE *out_fd) { fprintf(out_fd, "%s", color_reset           ); }
+#endif
+
+
 void print_path(const char *path, const char sep) {
     path = normalize_path(path);
+    const char *buf = fix_path_slashes(path);
 
     if (opts.ackmate) {
+        fprintf(out_fd, ":%s%c", buf, sep);
         fprintf(out_fd, ":%s%c", path, sep);
     } else if (opts.vimgrep) {
         fprintf(out_fd, "%s%c", path, sep);
     } else {
         if (opts.color) {
-            fprintf(out_fd, "%s%s%s%c", opts.color_path, path, color_reset, sep);
+            color_highlight_path(out_fd);
+            fprintf(out_fd, "%s", buf);
+            color_normal(out_fd);
+            fprintf(out_fd, "%c", sep);
         } else {
-            fprintf(out_fd, "%s%c", path, sep);
+            fprintf(out_fd, "%s%c", buf, sep);
         }
     }
+    free((void*)buf);
 }
 
 void print_path_count(const char *path, const char sep, const size_t count) {
@@ -50,8 +98,10 @@ void print_line(const char *buf, size_t buf_pos, size_t prev_line_offset) {
 
 void print_binary_file_matches(const char *path) {
     path = normalize_path(path);
+    const char *buf = fix_path_slashes(path);
     print_file_separator();
-    fprintf(out_fd, "Binary file %s matches.\n", path);
+    fprintf(out_fd, "Binary file %s matches.\n", buf);
+    free((void*)buf);
 }
 
 void print_file_matches(const char *path, const char *buf, const size_t buf_len, const match_t matches[], const size_t matches_len) {
@@ -89,7 +139,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
         }
     }
 
-    context_prev_lines = ag_calloc(sizeof(char *), (opts.before + 1));
+    context_prev_lines = (char **)ag_calloc(sizeof(char *), (opts.before + 1));
 
     for (i = 0; i <= buf_len && (cur_match < matches_len || lines_since_last_match <= opts.after); i++) {
         if (cur_match < matches_len && i == matches[cur_match].start) {
@@ -169,12 +219,12 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
                     }
 
                     if (printing_a_match && opts.color) {
-                        fprintf(out_fd, "%s", opts.color_match);
+                        color_highlight_match(out_fd);
                     }
                     for (j = prev_line_offset; j <= i; j++) {
                         if (last_printed_match < matches_len && j == matches[last_printed_match].end) {
                             if (opts.color) {
-                                fprintf(out_fd, "%s", color_reset);
+                                color_normal(out_fd);
                             }
                             printing_a_match = FALSE;
                             last_printed_match++;
@@ -194,7 +244,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
                                 }
                             }
                             if (opts.color) {
-                                fprintf(out_fd, "%s", opts.color_match);
+                                color_highlight_match(out_fd);
                             }
                             printing_a_match = TRUE;
                         }
@@ -207,7 +257,7 @@ void print_file_matches(const char *path, const char *buf, const size_t buf_len,
                         }
                     }
                     if (printing_a_match && opts.color) {
-                        fprintf(out_fd, "%s", color_reset);
+                        color_normal(out_fd);
                     }
                 }
             } else if (lines_since_last_match <= opts.after) {
@@ -282,4 +332,15 @@ const char *normalize_path(const char *path) {
         return path + 1;
     }
     return path;
+}
+
+const char* fix_path_slashes(const char* path) {
+    char* buf = strdup(path);
+#ifdef _WIN32
+    for(char* i = buf; *i; ++i)
+    {
+        if(*i == '/') *i = '\\';
+    }
+#endif
+    return buf;
 }

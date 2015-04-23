@@ -11,9 +11,9 @@
 
 #include "config.h"
 
-#ifdef HAVE_PTHREAD_H
+//#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
-#endif
+//#endif
 
 #include "log.h"
 #include "options.h"
@@ -35,6 +35,11 @@ int main(int argc, char **argv) {
     worker_t *workers = NULL;
     int workers_len;
     int num_cores;
+
+#ifdef KJK_BUILD
+    extern void setup_crash_handler(); /* in kjk_crash_handler.cpp */
+    setup_crash_handler();
+#endif
 
     set_log_level(LOG_LEVEL_WARN);
 
@@ -79,8 +84,8 @@ int main(int argc, char **argv) {
 
     log_debug("Using %i workers", workers_len);
     done_adding_files = FALSE;
-    workers = ag_calloc(workers_len, sizeof(worker_t));
-    if (pthread_cond_init(&files_ready, NULL)) {
+    workers = (worker_t *) ag_calloc(workers_len, sizeof(worker_t));
+	if (pthread_cond_init(&files_ready, NULL)) {
         die("pthread_cond_init failed!");
     }
     if (pthread_mutex_init(&print_mtx, NULL)) {
@@ -157,7 +162,8 @@ int main(int argc, char **argv) {
             log_debug("searching path %s for %s", paths[i], opts.query);
             symhash = NULL;
             ignores *ig = init_ignore(root_ignores, "", 0);
-            struct stat s = {.st_dev = 0 };
+            struct stat s;
+            s.st_dev = 0;
 #ifndef _WIN32
             /* The device is ignored if opts.one_dev is false, so it's fine
              * to leave it at the default 0

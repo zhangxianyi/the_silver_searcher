@@ -892,7 +892,7 @@ typedef unsigned char uint8_t;
 
 typedef struct UT_hash_bucket {
     struct UT_hash_handle *hh_head;
-    unsigned count;
+    unsigned int count;
 
     /* expand_mult is normally set to 0. In this situation, the max chain length
     * threshold is enforced at its default value, HASH_BKT_CAPACITY_THRESH. (If
@@ -906,7 +906,7 @@ typedef struct UT_hash_bucket {
     * It is better to let its chain length grow to a longer yet-still-bounded
     * value, than to do an O(n) bucket expansion too often.
     */
-    unsigned expand_mult;
+    unsigned int expand_mult;
 
 } UT_hash_bucket;
 

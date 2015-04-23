@@ -25,7 +25,11 @@ Language types are output:
         .cfc  .cfm  .cfml
   
     --clojure
+<<<<<<< HEAD
         .clj  .cljs  .cljc  .cljx
+=======
+        .clj  .cljs  .cljx
+>>>>>>> windows_patch
   
     --coffee
         .coffee
@@ -42,9 +46,12 @@ Language types are output:
     --delphi
         .pas  .int  .dfm  .nfm  .dof  .dpk  .dproj  .groupproj  .bdsgroup  .bdsproj
   
+<<<<<<< HEAD
     --ebuild
         .ebuild  .eclass
   
+=======
+>>>>>>> windows_patch
     --elisp
         .el
   
@@ -54,9 +61,12 @@ Language types are output:
     --fortran
         .f  .f77  .f90  .f95  .f03  .for  .ftn  .fpp
   
+<<<<<<< HEAD
     --fsharp
         .fs  .fsi  .fsx
   
+=======
+>>>>>>> windows_patch
     --gettext
         .po  .pot  .mo
   
@@ -123,6 +133,7 @@ Language types are output:
     --matlab
         .m
   
+<<<<<<< HEAD
     --mathematica
         .m  .wl
   
@@ -132,6 +143,11 @@ Language types are output:
     --nim
         .nim
   
+=======
+    --mercury
+        .m  .moo
+  
+>>>>>>> windows_patch
     --objc
         .m  .h
   
@@ -153,6 +169,7 @@ Language types are output:
     --php
         .php  .phpt  .php3  .php4  .php5  .phtml
   
+<<<<<<< HEAD
     --pike
         .pike  .pmod
   
@@ -162,6 +179,11 @@ Language types are output:
     --puppet
         .pp
   
+=======
+    --plone
+        .pt  .cpt  .metadata  .cpy  .py
+  
+>>>>>>> windows_patch
     --python
         .py
   
@@ -171,9 +193,12 @@ Language types are output:
     --rs
         .rs
   
+<<<<<<< HEAD
     --r
         .R  .Rmd  .Rnw  .Rtex  .Rrst
   
+=======
+>>>>>>> windows_patch
     --ruby
         .rb  .rhtml  .rjs  .rxml  .erb  .rake  .spec
   
@@ -222,9 +247,12 @@ Language types are output:
     --vb
         .bas  .cls  .frm  .ctl  .vb  .resx
   
+<<<<<<< HEAD
     --velocity
         .vm
   
+=======
+>>>>>>> windows_patch
     --verilog
         .v  .vh  .sv
   

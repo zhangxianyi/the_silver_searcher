@@ -39,7 +39,7 @@ void log_err(const char *fmt, ...) {
 }
 
 void vplog(const unsigned int level, const char *fmt, va_list args) {
-    if (level < log_threshold) {
+    if ((enum log_level)level < log_threshold) {
         return;
     }
 

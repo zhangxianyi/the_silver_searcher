@@ -1,0 +1,42 @@
+# This file contains descriptions of tests.
+# Hopefully the format is self-explanatory.
+# The high-level overview is that for each test, we list:
+# - files and their contents
+# - ag command to run
+# - expected result of running the command
+--
+test: no files at all
+cmd: --ackmate foo
+--
+file: foo.txt
+this is foo bar on first line
+second
+third
+and the last Line
+cmd: --ackmate foo
+:foo.txt
+1;8 3:this is foo bar on first line
+cmd: --ackmate line
+:foo.txt
+1;25 4:this is foo bar on first line
+cmd: --ackmate -i line
+:foo.txt
+1;25 4:this is foo bar on first line
+4;13 4:and the last Line
+cmd: --ackmate -C foo
+:foo.txt
+1;8 3:this is foo bar on first line
+2:second
+3:third
+cmd: --ackmate -C 1 foo
+:foo.txt
+1;8 3:this is foo bar on first line
+2:second
+cmd: --ackmate -v foo
+:foo.txt
+1;0 8:this is foo bar on first line
+2;second
+3;third
+4;-32 49:and the last Line
+cmd: --ackmate foo foo.txt
+1;8 3:this is foo bar on first line

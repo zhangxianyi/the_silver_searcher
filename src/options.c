@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <sys/param.h>
+#endif
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -19,6 +21,74 @@
 const char *color_line_number = "\033[1;33m"; /* bold yellow */
 const char *color_match = "\033[30;43m";      /* black with yellow background */
 const char *color_path = "\033[1;32m";        /* bold green */
+#define BUFFER_SIZE 4096
+
+#ifdef _MSC_VER
+/* Unlike popen(), it doesn't pollutes stderr if the executable doesn't exist.
+   This might be common on Windows (no git installed)
+*/
+static char *read_program_out(char *cmd) {
+    BOOL ok = TRUE;
+    HANDLE hRead = NULL, hWrite = NULL;
+    char *res = NULL;
+    DWORD dwRead;
+    DWORD totalLen = 0;
+	const static int BUF_SIZE = BUFFER_SIZE;
+    char buf[BUFFER_SIZE];
+    STARTUPINFOA si = { 0 };
+    SECURITY_ATTRIBUTES sa = { 0 };
+    PROCESS_INFORMATION pi = { 0 };
+
+    sa.nLength = sizeof(sa);
+    sa.lpSecurityDescriptor = NULL;
+    sa.bInheritHandle = TRUE;
+
+    if (!CreatePipe(&hRead, &hWrite, &sa, 0))
+        goto Exit;
+
+    if (!SetHandleInformation(hRead, HANDLE_FLAG_INHERIT, 0))
+        goto Exit;
+
+    si.cb = sizeof(si);
+    si.dwFlags    = STARTF_USESTDHANDLES;
+    si.hStdInput = hWrite;
+    si.hStdOutput = hWrite;
+    si.hStdError  = hWrite;
+
+    if (!CreateProcessA(NULL, cmd, NULL, NULL, TRUE,
+        NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+        goto Exit;
+
+    CloseHandle(hWrite);
+    hWrite = NULL;
+
+    for (;;) {
+        ok = ReadFile(hRead, buf, BUF_SIZE, &dwRead, NULL);
+        if (!ok || dwRead == 0)
+            break;
+        res = (char*)ag_realloc(res, totalLen + dwRead + 1);
+        memcpy(res + totalLen, buf, dwRead);
+        totalLen += dwRead;
+        res[totalLen] = 0;
+    }
+
+    if (!ok && (ERROR_BROKEN_PIPE != GetLastError())) {
+        free(res);
+        res = NULL;
+    }
+
+Exit:
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    CloseHandle(hRead);
+    CloseHandle(hWrite);
+    return res;
+}
+#endif
+
+cli_options opts;
+
+
 
 /* TODO: try to obey out_fd? */
 void usage(void) {
@@ -182,6 +252,22 @@ void cleanup_options(void) {
     }
 }
 
+/* Apparently on Unix atoi() returns EINVAL if a string is not a number
+   but Visual Studio's CRT doesn't, so we must check explicitly. */
+static int is_valid_num(char *s)
+{
+    char *num = s;
+    while (s && *s && *s != ' ') {
+        if (!(*s >= '0' && *s <= '9'))
+            return 0;
+        ++s;
+    }
+    /* for max Unix compat, also see what atoi() says */
+    if (0 == atoi(num) && errno == EINVAL)
+        return 0;
+    return 1;
+}
+
 void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
     int ch;
     size_t i;
@@ -293,7 +379,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
     lang_count = get_lang_count();
     longopts_len = (sizeof(base_longopts) / sizeof(option_t));
     full_len = (longopts_len + lang_count + 1);
-    longopts = ag_malloc(full_len * sizeof(option_t));
+    longopts = (option_t*)ag_malloc(full_len * sizeof(option_t));
     memcpy(longopts, base_longopts, sizeof(base_longopts));
     ext_index = (size_t *)ag_malloc(sizeof(size_t) * lang_count);
     memset(ext_index, 0, sizeof(size_t) * lang_count);
@@ -302,7 +388,8 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         option_t opt = { langs[i].name, no_argument, NULL, 0 };
         longopts[i + longopts_len] = opt;
     }
-    longopts[full_len - 1] = (option_t){ NULL, 0, NULL, 0 };
+    option_t opt = { NULL, 0, NULL, 0 }; 
+	longopts[full_len - 1] = opt;
 
     if (argc < 2) {
         usage();
@@ -368,10 +455,12 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
             case 'C':
                 if (optarg) {
                     opts.context = strtol(optarg, &num_end, 10);
-                    if (num_end == optarg || *num_end != '\0' || errno == ERANGE) {
+                    if (!is_valid_num(optarg)) {
                         /* This arg must be the search string instead of the context length */
                         optind--;
                         opts.context = DEFAULT_CONTEXT_LEN;
+                    } else {
+                        opts.context = atoi(optarg);
                     }
                 } else {
                     opts.context = DEFAULT_CONTEXT_LEN;
@@ -612,6 +701,13 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         size_t buf_len = 0;
         char *gitconfig_res = NULL;
 
+#ifdef _MSC_VER
+        gitconfig_res = read_program_out("git config -z --get core.excludesfile");
+        if (gitconfig_res != NULL)
+            load_ignore_patterns(root_ignores, gitconfig_res);
+        free(gitconfig_res);
+#else
+
 #ifdef _WIN32
         gitconfig_file = popen("git config -z --path --get core.excludesfile 2>NUL", "r");
 #else
@@ -619,7 +715,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
 #endif
         if (gitconfig_file != NULL) {
             do {
-                gitconfig_res = ag_realloc(gitconfig_res, buf_len + 65);
+                gitconfig_res = (char*)ag_realloc(gitconfig_res, buf_len + 65);
                 buf_len += fread(gitconfig_res + buf_len, 1, 64, gitconfig_file);
             } while (!feof(gitconfig_file) && buf_len > 0 && buf_len % 64 == 0);
             gitconfig_res[buf_len] = '\0';
@@ -628,6 +724,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
             free(gitconfig_res);
             pclose(gitconfig_file);
         }
+#endif // _MSC_VER
     }
 
     if (opts.context > 0) {
@@ -648,10 +745,6 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
         group = 1;
         opts.search_stream = 0;
         opts.print_path = PATH_PRINT_NOTHING;
-    }
-
-    if (opts.parallel) {
-        opts.search_stream = 0;
     }
 
     if (!(opts.print_path != PATH_PRINT_DEFAULT || opts.print_break == 0)) {
@@ -697,8 +790,8 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
     char *tmp = NULL;
     opts.paths_len = argc;
     if (argc > 0) {
-        *paths = ag_calloc(sizeof(char *), argc + 1);
-        *base_paths = ag_calloc(sizeof(char *), argc + 1);
+        *paths = (char**)ag_calloc(sizeof(char*), argc + 1);
+        *base_paths = (char**)ag_calloc(sizeof(char*), argc + 1);
         for (i = 0; i < (size_t)argc; i++) {
             path = ag_strdup(argv[i]);
             path_len = strlen(path);
@@ -707,17 +800,17 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
                 path[path_len - 1] = '\0';
             }
             (*paths)[i] = path;
-            tmp = ag_malloc(PATH_MAX);
+            tmp = (char*)ag_malloc(PATH_MAX);
             (*base_paths)[i] = realpath(path, tmp);
         }
         /* Make sure we search these paths instead of stdin. */
         opts.search_stream = 0;
     } else {
         path = ag_strdup(".");
-        *paths = ag_malloc(sizeof(char *) * 2);
-        *base_paths = ag_malloc(sizeof(char *) * 2);
+        *paths = (char**)ag_malloc(sizeof(char*) * 2);
+        *base_paths = (char**)ag_malloc(sizeof(char*) * 2);
         (*paths)[0] = path;
-        tmp = ag_malloc(PATH_MAX);
+        tmp = (char*)ag_malloc(PATH_MAX);
         (*base_paths)[0] = realpath(path, tmp);
         i = 1;
     }

@@ -1,4 +1,5 @@
 #include <string.h>
+#include <zlib.h>
 #include <unistd.h>
 
 #include "decompress.h"
@@ -48,7 +49,7 @@ static void *decompress_zlib(const void *buf, const int buf_len,
     }
 
     stream.avail_in = buf_len;
-    stream.next_in = buf;
+    stream.next_in = (Bytef*)buf;
 
     pagesize = getpagesize();
     result_size = ((buf_len + pagesize - 1) & ~(pagesize - 1));
@@ -228,7 +229,7 @@ ag_compression_type is_zipped(const void *buf, const int buf_len) {
      * http://www.pkware.com/documents/casestudies/APPNOTE.TXT (Section 4.3)
      */
 
-    const unsigned char *buf_c = buf;
+    const unsigned char *buf_c = (const unsigned char *)buf;
 
     if (buf_len == 0)
         return AG_NO_COMPRESSION;
