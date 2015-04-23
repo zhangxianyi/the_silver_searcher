@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseKjk|Win32">
+      <Configuration>ReleaseKjk</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0A9E14ED-04E5-CF46-9FE7-00CFC89BB49E}</ProjectGuid>
+    <RootNamespace>pcre</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseKjk|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseKjk|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\dbg\</OutDir>
+    <IntDir>obj\Debug\pcre\</IntDir>
+    <TargetName>pcre</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\rel\</OutDir>
+    <IntDir>obj\Release\pcre\</IntDir>
+    <TargetName>pcre</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseKjk|Win32'">
+    <OutDir>..\rel\</OutDir>
+    <IntDir>obj\ReleaseKjk\pcre\</IntDir>
+    <TargetName>pcre</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/wd4800 /wd4127 /wd4100 /wd4244 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;DEBUG;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <ProgramDataBaseFileName>$(OutDir)pcre.pdb</ProgramDataBaseFileName>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;DEBUG;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)pcre.lib</OutputFile>
+    </Lib>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/wd4800 /wd4127 /wd4100 /wd4244 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ProgramDataBaseFileName>$(OutDir)pcre.pdb</ProgramDataBaseFileName>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)pcre.lib</OutputFile>
+    </Lib>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseKjk|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/wd4800 /wd4127 /wd4100 /wd4244 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;KJK_BUILD;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ProgramDataBaseFileName>$(OutDir)pcre.pdb</ProgramDataBaseFileName>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;KJK_BUILD;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)pcre.lib</OutputFile>
+    </Lib>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_byte_order.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_chartables.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_compile.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_config.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_dfa_exec.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_exec.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_fullinfo.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_get.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_globals.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_jit_compile.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_maketables.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_newline.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_ord2utf8.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_refcount.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_string_utils.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_study.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_tables.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_ucd.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_valid_utf8.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_version.c">
+    </ClCompile>
+    <ClCompile Include="..\wincompat\pcre-8.32\pcre_xclass.c">
+    </ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

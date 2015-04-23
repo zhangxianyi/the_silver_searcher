@@ -1,42 +1,48 @@
-# The Silver Searcher #
+# The Silver Searcher
 
 A code searching tool similar to `ack`, with a focus on speed.
 
-### Attention
-I will be doing a public coding session on Saturday, October 26th at 1900UTC. That's noon Pacific Time. You can watch and chat at https://floobits.com/r/ggreer/the_silver_searcher/
+[![Build Status](https://travis-ci.org/ggreer/the_silver_searcher.svg?branch=master)](https://travis-ci.org/ggreer/the_silver_searcher)
 
-<a href="https://floobits.com/r/ggreer/the_silver_searcher/redirect">
-  <img alt="Floobits status" width="80" height="40" src="https://floobits.com/r/ggreer/the_silver_searcher.png" />
-</a>
+[![Floobits Status](https://floobits.com/ggreer/ag.png)](https://floobits.com/ggreer/ag/redirect)
+
+[![#ag on Freenode](http://img.shields.io/Freenode/%23ag.png)](https://webchat.freenode.net/?channels=ag)
+
+Do you know C? I invite you to pair with me to [help me get to Ag 1.0](http://geoff.greer.fm/2014/10/13/help-me-get-to-ag-10/).
 
 
-## What's so great about Ag? ##
+## What's so great about Ag?
 
-* It searches code about 3–5× faster than `ack`.
+* It is an order of magnitude faster than `ack`.
 * It ignores file patterns from your `.gitignore` and `.hgignore`.
-* If there are files in your source repo you don't want to search, just add their patterns to a `.agignore` file. \*cough\* extern \*cough\*
+* If there are files in your source repo you don't want to search, just add their patterns to a `.agignore` file. (\*cough\* extern \*cough\*)
 * The command name is 33% shorter than `ack`, and all keys are on the home row!
 
+Ag is quite stable now. Most changes are new features, minor bug fixes, or performance improvements. It's much faster than Ack in my benchmarks:
 
-## How is it so fast? ##
+    ack test_blah ~/code/  104.66s user 4.82s system 99% cpu 1:50.03 total
 
-* Searching for literals (no regex) uses [Boyer-Moore-Horspool strstr](http://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm).
+    ag test_blah ~/code/  4.67s user 4.58s system 286% cpu 3.227 total
+
+Ack and Ag found the same results, but Ag was 34x faster (3.2 seconds vs 110 seconds). My `~/code` directory is about 8GB. Thanks to git/hg/svn-ignore, Ag only searched 700MB of that.
+
+There are also [graphs of performance across releases](http://geoff.greer.fm/ag/speed/).
+
+## How is it so fast?
+
+* Ag uses [Pthreads](https://en.wikipedia.org/wiki/POSIX_Threads) to take advantage of multiple CPU cores and search files in parallel.
 * Files are `mmap()`ed instead of read into a buffer.
-* If you're building with PCRE 8.21 or greater, regex searches use [the JIT compiler](http://sljit.sourceforge.net/pcre.html).
-* Ag calls `pcre_study()` before executing the regex on a jillion files.
-* Instead of calling `fnmatch()` on every pattern in your ignore files, non-regex patterns are loaded into an array and binary searched.
-* Ag uses [Pthreads](http://en.wikipedia.org/wiki/POSIX_Threads) to take advantage of multiple CPU cores and search files in parallel.
+* Literal string searching uses [Boyer-Moore strstr](https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_string_search_algorithm).
+* Regex searching uses [PCRE's JIT compiler](http://sljit.sourceforge.net/pcre.html) (if Ag is built with PCRE >=8.21).
+* Ag calls `pcre_study()` before executing the same regex on every file.
+* Instead of calling `fnmatch()` on every pattern in your ignore files, non-regex patterns are loaded into arrays and binary searched.
 
 I've written several blog posts showing how I've improved performance. These include how I [added pthreads](http://geoff.greer.fm/2012/09/07/the-silver-searcher-adding-pthreads/), [wrote my own `scandir()`](http://geoff.greer.fm/2012/09/03/profiling-ag-writing-my-own-scandir/), [benchmarked every revision to find performance regressions](http://geoff.greer.fm/2012/08/25/the-silver-searcher-benchmarking-revisions/), and profiled with [gprof](http://geoff.greer.fm/2012/02/08/profiling-with-gprof/) and [Valgrind](http://geoff.greer.fm/2012/01/23/making-programs-faster-profiling/).
 
 
-## Installation ##
+## Installing
 
-Gentoo:
-
-    emerge the_silver_searcher
-
-OS X:
+### OS X
 
     brew install the_silver_searcher
 
@@ -44,128 +50,119 @@ or
 
     port install the_silver_searcher
 
-ArchLinux:
 
-    pacman -S the_silver_searcher
+### Linux
 
-FreeBSD:
+* Ubuntu >= 13.10 (Saucy) or Debian >= 8 (Jessie)
 
-Use either of the following commands depending on which [package management tool](http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/ports.html) your system is configured for:
+        apt-get install silversearcher-ag
+* Fedora 19+
 
-    pkg add the_silver_searcher
+        yum install the_silver_searcher
+* RHEL7+
 
-or
+        rpm -Uvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+        yum install the_silver_searcher
+* Gentoo
 
-    pkg_add the_silver_searcher
+        emerge the_silver_searcher
+* Arch
 
-To build Ag from source on FreeBSD:
+        pacman -S the_silver_searcher
 
-    make -C /usr/ports/textproc/the_silver_searcher install clean
+* Slackware
 
-OpenBSD:
+        sbopkg -i the_silver_searcher
 
-Use the following command to install from packages:
 
-    pkg_add the_silver_searcher
+### BSD
 
-To build Ag from source on OpenBSD:
+* FreeBSD
 
-    cd /usr/ports/textproc/the_silver_searcher && make install
+        pkg install the_silver_searcher
+* OpenBSD/NetBSD
 
-If you want a CentOS rpm or Ubuntu deb, take a look at [Vikram Dighe's packages](http://swiftsignal.com/packages/).
+        pkg_add the_silver_searcher
 
-Debian unstable:
 
-    apt-get install silversearcher-ag
 
-Ubuntu 13.10 or later:
+## Building from source
 
-    apt-get install silversearcher-ag
-
-Ubuntu 13.04:
-
-    apt-get install software-properties-common # (if required)
-    apt-add-repository ppa:mizuno-as/silversearcher-ag
-    apt-get update
-    apt-get install silversearcher-ag
-
-## Building from source ##
+### Building master
 
 1. Install dependencies (Automake, pkg-config, PCRE, LZMA):
-    * Ubuntu: `apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev`
+    * OS X:
+
+            brew install automake pkg-config pcre xz
+        or
+
+            port install automake pkgconfig pcre xz
+    * Ubuntu/Debian:
+
+            apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev
+    * Fedora:
+
+            yum -y install pkgconfig automake gcc zlib-devel pcre-devel xz-devel
     * CentOS:
 
-              yum -y groupinstall "Development Tools"
-              yum -y install pcre-devel xz-devel
-    * OS X:
-        - Install [homebrew](http://mxcl.github.com/homebrew/), then `brew install automake pkg-config pcre`
-        - Or install [macports](http://macports.org), then `port install automake pkgconfig pcre`
+            yum -y groupinstall "Development Tools"
+            yum -y install pcre-devel xz-devel
     * Windows: It's complicated. See [this wiki page](https://github.com/ggreer/the_silver_searcher/wiki/Windows).
 2. Run the build script (which just runs aclocal, automake, etc):
-    * `./build.sh`
+
+        ./build.sh
+
+  On Windows:
+
+        mingw32-make -f Makefile.w32
 3. Make install:
-    * `sudo make install`
 
-On windows:
-
-    mingw32-make -f Makefile.w32
+        sudo make install
 
 
-## Current development status ##
+### Building a release tarball
 
-It's quite stable now. Most changes are new features, minor bug fixes, or performance improvements. It's much faster than Ack in my benchmarks.
+Building release tarballs requires the same dependencies, except for automake and pkg-config. Once you've installed the dependencies, just run:
 
-    ack blahblahblah ~/code  6.59s user 1.94s system 99% cpu 8.547 total
+    ./configure
+    make
+    make install
 
-    ag blahblahblah ~/code  1.39s user 1.81s system 229% cpu 1.396 total
+You may need to use `sudo` or run as root for the make install.
 
 
-## Editor Integration ##
+## Editor Integration
 
-### TextMate ###
-
-TextMate users can use Ag with [my fork](https://github.com/ggreer/AckMate) of the popular AckMate plugin, which lets you use both Ack and Ag for searching. If you already have AckMate you just want to replace Ack with Ag, move or delete `"~/Library/Application Support/TextMate/PlugIns/AckMate.tmplugin/Contents/Resources/ackmate_ack"` and run `ln -s /usr/local/bin/ag "~/Library/Application Support/TextMate/PlugIns/AckMate.tmplugin/Contents/Resources/ackmate_ack"`
-
-### Vim ###
+### Vim
 
 You can use Ag with [ack.vim][] by adding the following line to your `.vimrc`:
 
     let g:ackprg = 'ag --nogroup --nocolor --column'
 
+or:
+
+    let g:ackprg = 'ag --vimgrep'
+
+Which has the same effect but will report every match on the line.
+
 There's also a fork of ack.vim tailored for use with Ag: [ag.vim][]
 [ack.vim]: https://github.com/mileszs/ack.vim
 [ag.vim]: https://github.com/rking/ag.vim
 
-### Emacs ###
+### Emacs
 
-You can use use [ag.el][] as an Emacs fronted to Ag.
+You can use [ag.el][] as an Emacs fronted to Ag. See also: [helm-ag].
 
 [ag.el]: https://github.com/Wilfred/ag.el
+[helm-ag]: https://github.com/syohex/emacs-helm-ag
 
-## Contributing ##
+### TextMate
 
-I like when people send pull requests. It validates my existence. If you want to help out, check the [issue list](https://github.com/ggreer/the_silver_searcher/issues?sort=updated&state=open) or search the codebase for `TODO`. Don't worry if you lack experience writing C. If I think a pull request isn't ready to be merged, I'll give feedback in comments. Once everything looks good, I'll comment on your pull request with a cool animated gif and hit the merge button.
+TextMate users can use Ag with [my fork](https://github.com/ggreer/AckMate) of the popular AckMate plugin, which lets you use both Ack and Ag for searching. If you already have AckMate you just want to replace Ack with Ag, move or delete `"~/Library/Application Support/TextMate/PlugIns/AckMate.tmplugin/Contents/Resources/ackmate_ack"` and run `ln -s /usr/local/bin/ag "~/Library/Application Support/TextMate/PlugIns/AckMate.tmplugin/Contents/Resources/ackmate_ack"`
 
+## Other stuff you might like
 
-## TODO ##
-
-A special thanks goes out to Alex Davies. He has given me some excellent recommendations to improve Ag. Many of these things are still on my list:
-
-* Optimizations
-  * Profile `read()` against `mmap()`. Remember that's `read()` not `fread()`.
-  * Write a benchmarking script that tweaks various settings to find what's fastest.
-* Features
-  * Behave better when matching in files with really long lines.
-  * Report "match found at position X of line N" if line is > 10k chars.
-* Windows support
-  * `readdir()` and `stat()` are much slower on Windows. Use `FindNextFile()` instead.
-  * Support Visual Studio instead of autotools?
-  * Need to use pthreads-win32 or something similar.
-
-
-## Other stuff you might like ##
-
-* [Ack](https://github.com/petdance/ack) - Better than grep
+* [Ack](https://github.com/petdance/ack2) - Better than grep. Without Ack, Ag would not exist.
 * [AckMate](https://github.com/protocool/AckMate) - An ack-powered replacement for TextMate's slow built-in search.
 * [ack.vim](https://github.com/mileszs/ack.vim)
 * [ag.vim]( https://github.com/rking/ag.vim)
