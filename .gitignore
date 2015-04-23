@@ -30,6 +30,8 @@ tests/big/*.err
 tests/big/big_file.txt
 the_silver_searcher.spec
 vs-premake
+!*.vcxproj
+!*.sln
 dbg/
 rel/
 *pyc
