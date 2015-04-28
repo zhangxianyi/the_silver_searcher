@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<Filter Include="src">
+			<UniqueIdentifier>{FDA3073D-C440-F94E-A81D-778DEC3EDB27}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="wincompat">
+			<UniqueIdentifier>{110A056C-14BC-794F-A3F1-9DB99CD4A4C0}</UniqueIdentifier>
+		</Filter>
+	</ItemGroup>
+	<ItemGroup>
+		<ClInclude Include="..\src\decompress.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\src\ignore.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\src\lang.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\src\log.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\src\options.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\src\print.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\src\scandir.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\src\search.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\src\uthash.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\src\util.h">
+			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\dirent.h">
+			<Filter>wincompat</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\getopt.h">
+			<Filter>wincompat</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\unistd.h">
+			<Filter>wincompat</Filter>
+		</ClInclude>
+	</ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="..\src\decompress.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\ignore.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\lang.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\log.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\main.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\options.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\print.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\print_w32.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\scandir.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\search.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\util.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\dirent.c">
+			<Filter>wincompat</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\getopt.c">
+			<Filter>wincompat</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\unistd.c">
+			<Filter>wincompat</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\kjk_crash_handler.cpp">
+			<Filter>wincompat</Filter>
+		</ClCompile>
+	</ItemGroup>
+</Project>

@@ -23,7 +23,7 @@ void search_buf(const char *buf, const size_t buf_len,
     if (opts.search_stream) {
         binary = 0;
     } else if (!opts.search_binary_files) {
-        binary = is_binary((const void *)buf, buf_len);
+        binary = is_binary(buf, buf_len);
         if (binary) {
             log_debug("File %s is binary. Skipping...", dir_full_path);
             return;
@@ -119,7 +119,7 @@ void search_buf(const char *buf, const size_t buf_len,
             /* TODO: copy-pasted from above. FIXME */
             if (matches_len + matches_spare >= matches_size) {
                 matches_size = matches ? matches_size * 2 : 100;
-                matches = ag_realloc(matches, matches_size * sizeof(match_t));
+                matches = (match_t*)ag_realloc(matches, matches_size * sizeof(match_t));
                 log_debug("Too many matches in %s. Reallocating matches to %zu.", dir_full_path, matches_size);
                 matches = (match_t *)ag_realloc(matches, matches_size * sizeof(match_t));
             }
@@ -149,7 +149,7 @@ void search_buf(const char *buf, const size_t buf_len,
 
     if (matches_len > 0) {
         if (binary == -1 && !opts.print_filename_only) {
-            binary = is_binary((const void *)buf, buf_len);
+            binary = is_binary(buf, buf_len);
         }
         pthread_mutex_lock(&print_mtx);
         if (opts.print_filename_only) {

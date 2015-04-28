@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<Filter Include="wincompat">
+			<UniqueIdentifier>{8C496466-8427-F84E-B17A-B9A9E9AE146C}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="wincompat\zlib">
+			<UniqueIdentifier>{AE6B6F95-23CC-2B47-B70E-6B593486ECF7}</UniqueIdentifier>
+		</Filter>
+	</ItemGroup>
+	<ItemGroup>
+		<ClInclude Include="..\wincompat\zlib\crc32.h">
+			<Filter>wincompat\zlib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\zlib\deflate.h">
+			<Filter>wincompat\zlib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\zlib\gzguts.h">
+			<Filter>wincompat\zlib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\zlib\inffast.h">
+			<Filter>wincompat\zlib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\zlib\inffixed.h">
+			<Filter>wincompat\zlib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\zlib\inflate.h">
+			<Filter>wincompat\zlib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\zlib\inftrees.h">
+			<Filter>wincompat\zlib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\zlib\trees.h">
+			<Filter>wincompat\zlib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\zlib\zconf.h">
+			<Filter>wincompat\zlib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\zlib\zlib.h">
+			<Filter>wincompat\zlib</Filter>
+		</ClInclude>
+		<ClInclude Include="..\wincompat\zlib\zutil.h">
+			<Filter>wincompat\zlib</Filter>
+		</ClInclude>
+	</ItemGroup>
+	<ItemGroup>
+		<ClCompile Include="..\wincompat\zlib\adler32.c">
+			<Filter>wincompat\zlib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\zlib\compress.c">
+			<Filter>wincompat\zlib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\zlib\crc32.c">
+			<Filter>wincompat\zlib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\zlib\deflate.c">
+			<Filter>wincompat\zlib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\zlib\infback.c">
+			<Filter>wincompat\zlib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\zlib\inffast.c">
+			<Filter>wincompat\zlib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\zlib\inflate.c">
+			<Filter>wincompat\zlib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\zlib\inftrees.c">
+			<Filter>wincompat\zlib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\zlib\trees.c">
+			<Filter>wincompat\zlib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\zlib\uncompr.c">
+			<Filter>wincompat\zlib</Filter>
+		</ClCompile>
+		<ClCompile Include="..\wincompat\zlib\zutil.c">
+			<Filter>wincompat\zlib</Filter>
+		</ClCompile>
+	</ItemGroup>
+</Project>
