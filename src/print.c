@@ -335,9 +335,10 @@ const char *normalize_path(const char *path) {
 }
 
 const char* fix_path_slashes(const char* path) {
+    char *i;
     char* buf = strdup(path);
 #ifdef _WIN32
-    for(char* i = buf; *i; ++i)
+    for(i = buf; *i; ++i)
     {
         if(*i == '/') *i = '\\';
     }
