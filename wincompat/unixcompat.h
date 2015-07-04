@@ -7,6 +7,9 @@
 /* Define things that are provided by unix headers but not by Visual Studio */
 
 /* <sys/types.h> on unix */
+
+#ifdef _MSC_VER
+
 typedef int ssize_t;
 
 #define PATH_MAX 512
@@ -31,6 +34,8 @@ typedef int ssize_t;
 /* VS 2013 introduced va_copy */
 #if _MSC_VER < 1800
 #define va_copy(dest, src) (dest = src)
+#endif
+
 #endif
 
 #endif
