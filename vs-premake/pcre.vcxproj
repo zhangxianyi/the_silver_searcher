@@ -15,7 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A0D52E1F-F511-544B-BC39-F8D592E7C924}</ProjectGuid>
+    <ProjectGuid>{02ED9E6D-6E3E-0843-B5FB-8238EB3FB14E}</ProjectGuid>
     <RootNamespace>pcre</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -67,9 +67,9 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalOptions>/wd4800 /wd4127 /wd4100 /wd4244 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/wd4800 /wd4127 /wd4100 /wd4244 /wd4018 /wd4146 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\wincompat\pcre;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;DEBUG;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -85,7 +85,7 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;DEBUG;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\wincompat\pcre;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Lib>
       <OutputFile>$(OutDir)pcre.lib</OutputFile>
@@ -98,9 +98,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalOptions>/wd4800 /wd4127 /wd4100 /wd4244 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/wd4800 /wd4127 /wd4100 /wd4244 /wd4018 /wd4146 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\wincompat\pcre;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
@@ -116,7 +116,7 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\wincompat\pcre;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Lib>
       <OutputFile>$(OutDir)pcre.lib</OutputFile>
@@ -131,9 +131,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseKjk|Win32'">
     <ClCompile>
-      <AdditionalOptions>/wd4800 /wd4127 /wd4100 /wd4244 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/wd4800 /wd4127 /wd4100 /wd4244 /wd4018 /wd4146 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\wincompat\pcre;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;KJK_BUILD;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
@@ -149,7 +149,7 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;KJK_BUILD;_WIN32;WIN32;WINDOWS;_CRT_SECURE_NO_WARNINGS;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\wincompat\pcre-8.32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\wincompat\pcre;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Lib>
       <OutputFile>$(OutDir)pcre.lib</OutputFile>
@@ -163,47 +163,47 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_byte_order.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_byte_order.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_chartables.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_chartables.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_compile.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_compile.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_config.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_config.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_dfa_exec.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_dfa_exec.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_exec.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_exec.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_fullinfo.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_fullinfo.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_get.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_get.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_globals.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_globals.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_jit_compile.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_jit_compile.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_maketables.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_maketables.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_newline.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_newline.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_ord2utf8.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_ord2utf8.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_refcount.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_refcount.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_string_utils.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_string_utils.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_study.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_study.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_tables.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_tables.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_ucd.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_ucd.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_valid_utf8.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_valid_utf8.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_version.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_version.c">
     </ClCompile>
-    <ClCompile Include="..\wincompat\pcre-8.32\pcre_xclass.c">
+    <ClCompile Include="..\wincompat\pcre\pcre_xclass.c">
     </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

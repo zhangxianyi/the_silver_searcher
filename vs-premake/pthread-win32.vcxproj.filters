@@ -2,38 +2,32 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<ItemGroup>
 		<Filter Include="wincompat">
-			<UniqueIdentifier>{A7EF1B03-7D28-D442-B31C-D6DB34EDF467}</UniqueIdentifier>
+			<UniqueIdentifier>{97FBEA06-4B17-9C42-A65C-CE1B0DF6C621}</UniqueIdentifier>
 		</Filter>
-		<Filter Include="wincompat\pthread-win32">
-			<UniqueIdentifier>{DF90C0EB-9C94-4246-8BA4-40BE25E76339}</UniqueIdentifier>
+		<Filter Include="wincompat\pthread">
+			<UniqueIdentifier>{ADC7F715-A2FD-9942-8225-7E521A9AC975}</UniqueIdentifier>
 		</Filter>
 	</ItemGroup>
 	<ItemGroup>
-		<ClInclude Include="..\wincompat\pthread-win32\config.h">
-			<Filter>wincompat\pthread-win32</Filter>
+		<ClInclude Include="..\wincompat\pthread\context.h">
+			<Filter>wincompat\pthread</Filter>
 		</ClInclude>
-		<ClInclude Include="..\wincompat\pthread-win32\context.h">
-			<Filter>wincompat\pthread-win32</Filter>
+		<ClInclude Include="..\wincompat\pthread\implement.h">
+			<Filter>wincompat\pthread</Filter>
 		</ClInclude>
-		<ClInclude Include="..\wincompat\pthread-win32\implement.h">
-			<Filter>wincompat\pthread-win32</Filter>
+		<ClInclude Include="..\wincompat\pthread\pthread.h">
+			<Filter>wincompat\pthread</Filter>
 		</ClInclude>
-		<ClInclude Include="..\wincompat\pthread-win32\need_errno.h">
-			<Filter>wincompat\pthread-win32</Filter>
+		<ClInclude Include="..\wincompat\pthread\sched.h">
+			<Filter>wincompat\pthread</Filter>
 		</ClInclude>
-		<ClInclude Include="..\wincompat\pthread-win32\pthread.h">
-			<Filter>wincompat\pthread-win32</Filter>
-		</ClInclude>
-		<ClInclude Include="..\wincompat\pthread-win32\sched.h">
-			<Filter>wincompat\pthread-win32</Filter>
-		</ClInclude>
-		<ClInclude Include="..\wincompat\pthread-win32\semaphore.h">
-			<Filter>wincompat\pthread-win32</Filter>
+		<ClInclude Include="..\wincompat\pthread\semaphore.h">
+			<Filter>wincompat\pthread</Filter>
 		</ClInclude>
 	</ItemGroup>
 	<ItemGroup>
-		<ClCompile Include="..\wincompat\pthread-win32\pthread.c">
-			<Filter>wincompat\pthread-win32</Filter>
+		<ClCompile Include="..\wincompat\pthread\pthread.c">
+			<Filter>wincompat\pthread</Filter>
 		</ClCompile>
 	</ItemGroup>
 </Project>
