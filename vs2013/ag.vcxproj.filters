@@ -12,6 +12,9 @@
 		<ClInclude Include="..\src\decompress.h">
 			<Filter>src</Filter>
 		</ClInclude>
+		<ClInclude Include="..\src\encoding.h">
+			<Filter>src</Filter>
+		</ClInclude>
 		<ClInclude Include="..\src\ignore.h">
 			<Filter>src</Filter>
 		</ClInclude>
@@ -51,6 +54,9 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ClCompile Include="..\src\decompress.c">
+			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\src\encoding.c">
 			<Filter>src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\src\ignore.c">

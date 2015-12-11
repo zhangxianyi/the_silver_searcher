@@ -173,6 +173,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\src\decompress.h" />
+    <ClInclude Include="..\src\encoding.h" />
     <ClInclude Include="..\src\ignore.h" />
     <ClInclude Include="..\src\lang.h" />
     <ClInclude Include="..\src\log.h" />
@@ -189,6 +190,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\decompress.c">
     </ClCompile>
+    <ClCompile Include="..\src\encoding.c" />
     <ClCompile Include="..\src\ignore.c">
     </ClCompile>
     <ClCompile Include="..\src\lang.c">

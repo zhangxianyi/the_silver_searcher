@@ -2,6 +2,10 @@
 #include "util.h"
 #include "scandir.h"
 
+#ifdef _WIN32
+#include "encoding.h"
+#endif
+
 
 size_t alpha_skip_lookup[256];
 size_t *find_skip_lookup;
@@ -296,6 +300,17 @@ void search_file(const char *file_full_path) {
             goto cleanup;
         }
     }
+
+#ifdef _WIN32
+    if (is_utf16le(buf, f_len))
+    {
+        int utf8_len = 0;
+        char *_buf = convert_utf16_to_utf8(buf, &utf8_len);
+        search_buf(_buf, utf8_len, file_full_path);
+        free(_buf);
+        goto cleanup;
+    }
+#endif
 
     search_buf(buf, f_len, file_full_path);
 
