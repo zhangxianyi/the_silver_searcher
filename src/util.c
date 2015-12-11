@@ -277,6 +277,25 @@ void compile_study(pcre **re, pcre_extra **re_extra, char *q, const int pcre_opt
 }
 
 /* This function is very hot. It's called on every file. */
+int is_utf16le(const void *buf, const int buf_len) {
+	/* Utf magic numbers
+	*  00 00 FE FF	UTF-32, big-endian
+	*  FF FE 00 00	UTF-32, little-endian
+	*  FE FF		UTF-16, big-endian
+	*  FF FE		UTF-16, little-endian
+	*  EF BB BF		UTF-8
+	*/
+
+	const unsigned char *buf_c = (const unsigned char *)buf;
+
+	if (buf_len >= 2 && buf_c[0] == 0xFF && buf_c[1] == 0xFE) {
+		return 1;
+	}
+
+	return 0;
+}
+
+/* This function is very hot. It's called on every file. */
 
 int is_binary(const char* buf, const size_t buf_len) {
     size_t suspicious_bytes = 0;
