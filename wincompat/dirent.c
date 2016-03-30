@@ -15,6 +15,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <io.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -106,6 +107,9 @@ struct dirent *readdir(DIR *dir)
         {
             result         = &dir->result;
             result->d_name = dir->info.name;
+#ifdef HAVE_DIRENT_DTYPE
+            result->d_type = dir->info.attrib & _A_SUBDIR ? DT_DIR : DT_REG;
+#endif
         }
     }
     else
