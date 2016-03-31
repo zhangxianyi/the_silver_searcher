@@ -18,9 +18,31 @@ extern "C"
 
 typedef struct DIR DIR;
 
+#define HAVE_DIRENT_DTYPE
+
+#ifdef HAVE_DIRENT_DTYPE
+enum DirType
+{
+    DT_UNKNOWN = 0,
+    DT_FIFO = 1,
+    DT_CHR = 2,
+    DT_DIR = 4,
+    DT_BLK = 6,
+    DT_REG = 8,
+    DT_LNK = 10,
+    DT_SOCK = 12,
+    DT_WHT = 14,
+};
+#endif
+
+// If you add additional fields to this struct, you'll need to update
+// ag_scandir.
 struct dirent
 {
     char *d_name;
+#ifdef HAVE_DIRENT_DTYPE
+    unsigned char d_type;
+#endif
 };
 
 DIR           *opendir(const char *);
