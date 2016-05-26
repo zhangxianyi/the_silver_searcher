@@ -20,6 +20,14 @@
 #include "search.h"
 #include "util.h"
 
+#ifdef _WIN32
+static int old_mode = _O_TEXT;
+void restore_stdout() {
+    fflush(stdout);
+    _setmode(fileno(stdout), _O_TEXT);
+}
+#endif
+
 typedef struct {
     pthread_t thread;
     int id;
@@ -47,7 +55,13 @@ int main(int argc, char **argv) {
     work_queue_tail = NULL;
     memset(&stats, 0, sizeof(stats));
     root_ignores = init_ignore(NULL, "", 0);
+
+#ifdef _WIN32
+    old_mode = _setmode(fileno(stdout), _O_BINARY);
+    atexit(restore_stdout);
+#endif
     out_fd = stdout;
+
 #ifdef USE_PCRE_JIT
     int has_jit = 0;
     pcre_config(PCRE_CONFIG_JIT, &has_jit);
