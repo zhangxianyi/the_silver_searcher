@@ -24,6 +24,12 @@ const char *color_path = "\033[1;32m";        /* bold green */
 #define BUFFER_SIZE 4096
 
 #ifdef _MSC_VER
+#define HOME_VAR    "USERPROFILE"
+#else
+#define HOME_VAR    "HOME"
+#endif
+
+#ifdef _MSC_VER
 /* Unlike popen(), it doesn't pollutes stderr if the executable doesn't exist.
    This might be common on Windows (no git installed)
 */
@@ -279,7 +285,7 @@ void parse_options(int argc, char **argv, char **base_paths[], char **paths[]) {
     int list_file_types = 0;
     int opt_index = 0;
     char *num_end;
-    const char *home_dir = getenv("HOME");
+    const char *home_dir = getenv(HOME_VAR);
     char *ignore_file_path = NULL;
     int accepts_query = 1;
     int needs_query = 1;
