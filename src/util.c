@@ -335,6 +335,11 @@ int is_binary(const char* buf, const size_t buf_len) {
                     continue;
                 }
             }
+            if (buf_c[i] >= 0x81 && buf_c[i] <= 0xFE && i+1 < total_bytes) {
+                i++;
+                if (buf_c[i] >= 0x40 && buf_c[i] <= 0xFE)
+                    continue;
+            }
             suspicious_bytes++;
             /* Disk IO is so slow that it's worthwhile to do this calculation after every suspicious byte. */
             /* This is true even on a 1.6Ghz Atom with an Intel 320 SSD. */

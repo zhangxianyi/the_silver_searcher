@@ -21,8 +21,9 @@ solution 'ag'
     location (_OPTIONS['to'] or 'build')
 
     configurations { 'Debug', 'Release', 'ReleaseKjk' }
-    flags { 'StaticRuntime', 'NoRTTI', 'Unicode', 'NoExceptions', }
+    staticruntime "on"
     defines {
+        'HAVE_STRUCT_TIMESPEC',
         -- windows
         'WIN32', '_WIN32', 'WINDOWS', '_WINDOWS',
         -- pthread
